@@ -141,9 +141,30 @@ from scipy.stats import binom, norm, beta, expon
 # i = f*f
 # print(i, "\n------------\n", f)
 
-b = [list(range(0, 5)), list(range(10, 15))]
-bmn = np.mean(b)  # 全部元素求平均
-bm = np.mean(b, 0)  # 按列求平均
-bn = np.mean(b, 1)  # 按行求平均
-print(bmn, bm, bn)
-bvar = np.var(b)
+# b = [list(range(0, 5)), list(range(10, 15))]
+# bmn = np.mean(b)  # 全部元素求平均
+# bm = np.mean(b, 0)  # 按列求平均
+# bn = np.mean(b, 1)  # 按行求平均
+# print(bmn, bm, bn)
+# bvar = np.var(b)
+# bmvar = np.std(b, 0)
+# bnvar = np.std(b, 1)
+# print(bvar, bmvar, bnvar)
+
+# x = np.random.poisson(lam=5, size=10000)
+# a = plt.hist(x, bins=15, density=True, range=[0, 15], alpha=0.5)
+# plt.plot(a[1][0:15], a[0], 'g')
+# plt.show()
+
+# sigma = 1
+# mu = 0
+# x = np.arange(-5, 5, 0.1)
+# y = norm.pdf(x, mu, sigma)  # 正太分布函数
+# plt.plot(x, y, 'r')
+# plt.title('Normal distribution')
+# plt.xlabel('x')
+# plt.ylabel('density')
+# plt.show()
+
+x = np.linspace(0, 1, 11)
+print(x)
