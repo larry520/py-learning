@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
@@ -892,8 +891,8 @@ cv2.drawContours(mask, contours, -1, (255, 0, 255), 1)
 cv2.imshow('mask', mask)
 cv2.waitKey(0)
 # cv2.ellipse(mask, (int(x), int(y)), (int(MA), int(ma)), angle, 0, 360, (255, 0, 255), 1)
-pixelpoints = np.transpose(np.nonzero(mask))  # np.transpose 矩阵转置
-cv2.drawContours(mask, [pixelpoints], -1, (0, 0, 255), 1)
+pixel_points = np.transpose(np.nonzero(mask))  # np.transpose 矩阵转置
+cv2.drawContours(mask, [pixel_points], -1, (0, 0, 255), 1)
 cv2.imshow('mask', mask)
 cv2.waitKey(0)
 cv2.imshow('mask', mask)
@@ -901,3 +900,7 @@ cv2.waitKey(0)
 cv2.drawContours(mask, contours, -1, (0, 255, 0), -1)
 cv2.imshow('mask', mask)
 cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+print('nice job!')
+
