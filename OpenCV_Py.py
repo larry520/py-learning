@@ -746,7 +746,7 @@ pass  # ---------图像金字塔--------   2019-6-16 9:46:1
 # cv2.imshow('real', real)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
-pass  # ---------OpenCV中的轮廓--------   2019-6-16 15:57:29
+pass  # ---------轮廓--------   2019-6-16 15:57:29
 # 轮廓可以简单认为成将连续的点（连着边界）连在一起的曲线，具有相同
 # 的颜色或者灰度。轮廓在形状分析和物体的检测和识别中很有用。
 # 1.为了更加准确，要使用二值化图像。在寻找轮廓之前，要进行阈值化处理或者 Canny 边界检测。
@@ -755,33 +755,149 @@ pass  # ---------OpenCV中的轮廓--------   2019-6-16 15:57:29
 # def drawContours(image, contours, contourIdx, color, thickness=None, lineType=None, hierarchy=None,
 # maxLevel=None, offset=None): # real signature unknown; restored from __doc__
 # im = cv2.imread('zuiantu.jpg', 1)
-im = cv2.imread('hb.jpg')
-img = im.copy()
-imgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-# imgray = cv2.medianBlur(imgray, 5)
-cv2.namedWindow('gray')
-cv2.createTrackbar('minVal', 'gray', 0, 255, nothing)
-# cv2.createTrackbar('maxVal', 'gray', 0, 255, nothing)
-kernel = np.ones((3, 3), np.uint8)
-while 1:
-    minVal = cv2.getTrackbarPos('minVal', 'gray')
-    # maxVal = cv2.getTrackbarPos('maxVal', 'gray')
-    ret, thresh = cv2.threshold(imgray, minVal, 255, cv2.THRESH_BINARY)
-    # thresh = cv2.morphologyEx(thresh1, cv2.MORPH_CLOSE, kernel)
-    cv2.imshow('gray', thresh)
-    k1 = cv2.waitKey(10)
-    if k1 == 27:
-        break
-contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-cv2.drawContours(im, contours, -1, (0, 0, 255), 3, offset=(0, 0))
-# ----------- 矩， 轮廓的重心----------------------
-cnt = contours[0]
-# M 为矩的一个字典，包含
-M = cv2.moments(cnt)
-cx = int(M['m10']/M['m00'])
-cy = int(M['m01']/M['m00'])
-print(M, cx, cy)
+# # im = cv2.imread('hb.jpg')
+# img = im.copy()
+# imgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+# # imgray = cv2.medianBlur(imgray, 5)
+# cv2.namedWindow('gray')
+# cv2.createTrackbar('minVal', 'gray', 0, 255, nothing)
+# # cv2.createTrackbar('maxVal', 'gray', 0, 255, nothing)
+# kernel = np.ones((3, 3), np.uint8)
+# while 1:
+#     minVal = cv2.getTrackbarPos('minVal', 'gray')
+#     # maxVal = cv2.getTrackbarPos('maxVal', 'gray')
+#     ret, thresh = cv2.threshold(imgray, minVal, 255, cv2.THRESH_BINARY)
+#     # thresh = cv2.morphologyEx(thresh1, cv2.MORPH_CLOSE, kernel)
+#     cv2.imshow('gray', thresh)
+#     k1 = cv2.waitKey(10)
+#     if k1 == 27:
+#         break
+# contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+# cv2.drawContours(im, contours, -1, (0, 255, 0), 1, offset=(0, 0))
+# pass  # ----------- 矩， 轮廓的重心----------------------
+# # cnt = contours[0]
+# # # M 为矩的一个字典，包含
+# # M = cv2.moments(cnt)
+# # cx = int(M['m10']/M['m00'])
+# # cy = int(M['m01']/M['m00'])
+# # print(M, cx, cy)
+# #
+# cv2.imshow('orig-contours', np.hstack([img, im]))
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+pass  # ---------轮廓相关运算-------   2019-6-18 18:53:42
+# ----------轮廓面积----计算公式 或 零阶矩
+# cv2.contourArea(cnt)
+# cnt = contours[0], M = cv2.moments(cnt)
+# M['m00']
+# ----------轮廓周长-------, True 闭合的， False 打开的
+# perimeter = cv2.arcLength(cnt,True)
+# ----------轮廓近似------------
+# epsilon: 从原始轮廓到近似轮廓的最大距离, 这个参数用于调节轮廓的近似程度
+# epsilon = 0.1 * cv2.arcLength(cnt, True)
+# approx = cv2.approxPolyDP(cnt, epsilon, True)
+# # ----------凸包------------
+# 可以用来检测一个曲线是否具有凸性缺陷，并能纠正缺陷
+# hull = cv2.convexHull(cnt)
+# # ----------凸性检测------
+# 检测一个曲线是不是凸的， 是 True, 不是 False
+# k = cv2.isContourConvex(cnt)
+pass  # ---------边界矩形, 外接圆   -------   2019-6-18 19:49:24
+# # # 直边界矩形，不会考虑对象是否旋转。（x，y）为矩形左上角的坐标，（w，h）是矩形的宽和高。
+# # x, y, w, h = cv2.boundingRect(cnt)
+# # 旋转的边界矩形, 考虑对象是否旋转, 面积最小。返回的是旋转矩形，cv2.boxPoints()可将其转换成矩形的四个角点坐标
+# # cv2.minAreaRect(cnt), cv2.boxPoints(box)
+# # 最小外接圆,对象的外切圆。面积最小。
+# # (x,y),radius = cv2.minEnclosingCircle(cnt)
+# # center = (int(x),int(y))
+# # radius = int(radius)
+# # img = cv2.circle(img,center,radius,(0,255,0),2)
+# #
+# img = cv2.imread('j.jpg')
+# img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# ret, thresh = cv2.threshold(img_g, 125, 255, cv2.THRESH_BINARY)
+# contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+# cnt = contours[0]
+#
+# # 直边界矩形
+# x, y, w, h = cv2.boundingRect(cnt)
+# img = cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+#
+# # 旋转的边界矩形
+# pts = np.array(cv2.boxPoints(cv2.minAreaRect(cnt)), np.int32)
+# img = cv2.polylines(img, [pts], True, (255, 0, 255), 2)
+#
+# # 最小外接圆
+# (x, y), radius = cv2.minEnclosingCircle(cnt)
+# center = (int(x), int(y))
+# radius = int(radius)
+# img = cv2.circle(img, center, radius, (255, 0, 0), 2)
+#
+# # 椭圆拟合, 返回值其实就是旋转边界矩形的内切圆
+# ellipse = cv2.fitEllipse(cnt)
+# img = cv2.ellipse(img, ellipse, (0, 255, 0), 2)
+#
+# # 直线拟合
+# ows, cols = img.shape[:2]
+# [vx, vy, x, y] = cv2.fitLine(cnt, cv2.DIST_L2, 0, 0.01, 0.01)
+# lefty = int((-x * vy / vx) + y)
+# righty = int(((cols - x) * vy / vx) + y)
+# img = cv2.line(img, (cols - 1, righty), (0, lefty), (0, 255, 0), 2)
+#
+# cv2.imshow('j', img)
+# cv2.waitKey(0)
+# cv2.destroyWindow()
+pass  # ---------椭圆拟合，直线拟合-------   2019-6-18 20:32:55
+# 返回值其实就是旋转边界矩形的内切圆(有可能只与两条边相切）
+# ellipse = cv2.fitEllipse(cnt)
+# img = cv2.ellipse(img,ellipse,(0,255,0),2)
+# 图像中的白色点拟合出一条直线。
+# rows, cols = img.shape[:2]
+# [vx, vy, x, y] = cv2.fitLine(cnt, cv2.DIST_L2, 0, 0.01, 0.01)
+# lefty = int((-x * vy / vx) + y)
+# righty = int(((cols - x) * vy / vx) + y)
+# img = cv2.line(img, (cols - 1, righty), (0, lefty), (0, 255, 0), 2)
+# 实例见上图
+pass  # ---------轮廓性质-------   2019-6-19 14:45:1
 
-cv2.imshow('orig-contours', np.hstack([img, im]))
+img = cv2.imread('j.jpg')
+img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+ret, thresh = cv2.threshold(img_g, 125, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+cnt = contours[0]
+
+# ---------长宽比：边界矩形的宽高比 aspect_ratio
+x, y, w, h = cv2.boundingRect(cnt)
+aspect_ratio = float(w) / h
+# ---------轮廓面积与边界矩形面积的比  extent
+area = cv2.contourArea(cnt)
+x, y, w, h = cv2.boundingRect(cnt)
+rect_area = w * h
+extent = float(area) / rect_area
+# ---------轮廓面积与凸包面积的比  Solidity
+area = cv2.contourArea(cnt)
+hull = cv2.convexHull(cnt)
+# hull_area = cv2.contourArea(hull)
+# solidity = float(area) / hull_area
+# ---------与轮廓面积相等的圆形的直径  Equivalent Diameter
+area = cv2.contourArea(cnt)
+equi_diameter = np.sqrt(4 * area / np.pi)
+# ---------对象的方向，下面的方法会返回长轴和短轴的长度
+(x, y), (MA, ma), angle = cv2.fitEllipse(cnt)
+print(MA, "go",  ma)
+# ---------掩模和像素点
+mask = np.zeros(img.shape, np.uint8)
+# 这里一定要使用参数-1, 绘制填充的的轮廓
+cv2.drawContours(mask, contours, -1, (255, 0, 255), 1)
+cv2.imshow('mask', mask)
 cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.ellipse(mask, (int(x), int(y)), (int(MA), int(ma)), angle, 0, 360, (255, 0, 255), 1)
+pixelpoints = np.transpose(np.nonzero(mask))  # np.transpose 矩阵转置
+cv2.drawContours(mask, [pixelpoints], -1, (0, 0, 255), 1)
+cv2.imshow('mask', mask)
+cv2.waitKey(0)
+cv2.imshow('mask', mask)
+cv2.waitKey(0)
+cv2.drawContours(mask, contours, -1, (0, 255, 0), -1)
+cv2.imshow('mask', mask)
+cv2.waitKey(0)

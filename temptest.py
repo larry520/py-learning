@@ -1,6 +1,7 @@
-import numpy as np
+num_list = [1, 2, 2, 3, 4, 5]
+print(num_list)
 
-a = list(range(20))
-b = np.reshape(a, newshape=(5, 4))
+num = [i for i in num_list if i > 2]
 
-print(b)
+print(num)
+
