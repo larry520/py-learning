@@ -121,7 +121,7 @@ pass  # ---------鼠标当画笔-------------
 # # 如果mode 为 true 时绘制矩形， 按下'm' 变成绘制曲线
 # mode = True
 # ix, iy = -1, -1
-#
+# #
 #
 # # 创建回调函数
 # def draw_circle(event, x, y, flags, param):
@@ -131,20 +131,20 @@ pass  # ---------鼠标当画笔-------------
 #         drawing = True
 #         ix, iy = x, y
 # # 鼠标左键按下并移动鼠标时绘制图形。 event 查看移动， flag 查看是否按下
-# #     elif event == cv2.EVENT_MOUSEMOVE and flags == cv2.EVENT_FLAG_LBUTTON:
-# #         if drawing == True:
-# #             if mode == True:
-# #                 cv2.rectangle(img, (ix, iy), (x, y), (0, 255, 0), 1)
-# #             else:
-# #                 r = int(np.sqrt((x-ix)**2 + (y-iy)**2))
-# #                 cv2.circle(img, (x, y), r, (0, 255, 0), 1)
+#     elif event == cv2.EVENT_MOUSEMOVE and flags == cv2.EVENT_FLAG_LBUTTON:
+#         if drawing == True:
+#             if mode == True:
+#                 cv2.rectangle(img, (ix, iy), (x, y), (0, 255, 0), 1)
+#             else:
+#                 r = int(np.sqrt((x-ix)**2 + (y-iy)**2))
+#                 cv2.circle(img, (x, y), r, (0, 255, 0), 1)
 # # 松开鼠标，停止绘图 画图第一个参考点为按下时坐标，第二个参考点为鼠标松开时坐标
 #     elif event == cv2.EVENT_LBUTTONUP:
 #         drawing = False
 #         ix2, iy2 = x, y
 #         if mode == True:
-#             # cv2.rectangle(img, (ix, iy), (ix2, iy2), (0, 255, 0), 1)
-#             cv2.rectangle(img, (ix, iy), (ix2, iy2), (b, g, r), 1)
+#             cv2.rectangle(img, (ix, iy), (ix2, iy2), (0, 255, 0), 1)
+#             # cv2.rectangle(img, (ix, iy), (ix2, iy2), (b, g, r), 1)
 #         else:
 #             rid = int(np.sqrt((ix2 - ix) ** 2 + (iy2 - iy) ** 2)/2)
 #             # cv2.circle(img, (int((ix2+ix)/2), int((iy2+iy)/2)), rid, (0, 255, 0), 1)
@@ -154,13 +154,13 @@ pass  # ---------鼠标当画笔-------------
 # img = np.zeros((512, 512, 3), np.uint8)
 # cv2.namedWindow('image')
 # cv2.setMouseCallback('image', draw_circle)
-# # while 1:
-# #     cv2.imshow('image', img)
-# #     k = cv2.waitKey(1)
-# #     if k == ord('m'):
-# #         mode = not mode
-# #     elif k == 27:
-# #         break
+# while 1:
+#     cv2.imshow('image', img)
+#     k = cv2.waitKey(1)
+#     if k == ord('m'):
+#         mode = not mode
+#     elif k == 27:
+#         break
 pass  # ---------使用滑动条-------------
 # # # 创建一幅黑色图像
 # img = np.zeros((512, 512, 3), np.uint8)
@@ -858,45 +858,86 @@ pass  # ---------椭圆拟合，直线拟合-------   2019-6-18 20:32:55
 # img = cv2.line(img, (cols - 1, righty), (0, lefty), (0, 255, 0), 2)
 # 实例见上图
 pass  # ---------轮廓性质-------   2019-6-19 14:45:1
-
-img = cv2.imread('j.jpg')
-img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-ret, thresh = cv2.threshold(img_g, 125, 255, cv2.THRESH_BINARY)
-contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-cnt = contours[0]
-
-# ---------长宽比：边界矩形的宽高比 aspect_ratio
-x, y, w, h = cv2.boundingRect(cnt)
-aspect_ratio = float(w) / h
-# ---------轮廓面积与边界矩形面积的比  extent
-area = cv2.contourArea(cnt)
-x, y, w, h = cv2.boundingRect(cnt)
-rect_area = w * h
-extent = float(area) / rect_area
-# ---------轮廓面积与凸包面积的比  Solidity
-area = cv2.contourArea(cnt)
-hull = cv2.convexHull(cnt)
-# hull_area = cv2.contourArea(hull)
-# solidity = float(area) / hull_area
-# ---------与轮廓面积相等的圆形的直径  Equivalent Diameter
-area = cv2.contourArea(cnt)
-equi_diameter = np.sqrt(4 * area / np.pi)
-# ---------对象的方向，下面的方法会返回长轴和短轴的长度
-(x, y), (MA, ma), angle = cv2.fitEllipse(cnt)
-print(MA, "go", ma)
-# ---------掩模和像素点
-mask = np.zeros(img_g.shape, np.uint8)
-# 这里一定要使用参数-1, 绘制填充的的轮廓
-cv2.drawContours(mask, contours, -1, 255, -1)
-cv2.imshow('mask', mask)
-cv2.waitKey(0)
-# cv2.ellipse(mask, (int(x), int(y)), (int(MA), int(ma)), angle, 0, 360, (255, 0, 255), 1)
-pixel_points = np.transpose(np.nonzero(mask))  # np.transpose 矩阵转置
-maskc = np.zeros(img.shape, np.uint8)
-for x, y in pixel_points:
-    maskc[x, y] = (255, 0, 255)
-cv2.imshow('maskc', maskc)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-print('good job！')
+#
+# img = cv2.imread('j.jpg')
+# img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# ret, thresh = cv2.threshold(img_g, 125, 255, cv2.THRESH_BINARY)
+# contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+# cnt = contours[0]
+# # ---------极点  上下左右
+# leftmost = tuple(cnt[cnt[:,:,0].argmin()][0])
+# rightmost = tuple(cnt[cnt[:,:,0].argmax()][0])
+# topmost = tuple(cnt[cnt[:,:,1].argmin()][0])
+# bottommost = tuple(cnt[cnt[:,:,1].argmax()][0])
+# # ---------长宽比：边界矩形的宽高比 aspect_ratio
+# x, y, w, h = cv2.boundingRect(cnt)
+# aspect_ratio = float(w) / h
+# # ---------轮廓面积与边界矩形面积的比  extent
+# area = cv2.contourArea(cnt)
+# x, y, w, h = cv2.boundingRect(cnt)
+# rect_area = w * h
+# extent = float(area) / rect_area
+# # ---------轮廓面积与凸包面积的比  Solidity
+# area = cv2.contourArea(cnt)
+# hull = cv2.convexHull(cnt)
+# # hull_area = cv2.contourArea(hull)
+# # solidity = float(area) / hull_area
+# # ---------与轮廓面积相等的圆形的直径  Equivalent Diameter
+# area = cv2.contourArea(cnt)
+# equi_diameter = np.sqrt(4 * area / np.pi)
+# # ---------对象的方向，下面的方法会返回长轴和短轴的长度
+# (x, y), (MA, ma), angle = cv2.fitEllipse(cnt)
+# print(MA, "go", ma)
+# # ---------掩模和像素点
+# mask = np.zeros(img_g.shape, np.uint8)
+# # 这里一定要使用参数-1, 绘制填充的的轮廓
+# cv2.drawContours(mask, contours, -1, 255, -1)
+# cv2.imshow('mask', mask)
+# cv2.waitKey(0)
+# # cv2.ellipse(mask, (int(x), int(y)), (int(MA), int(ma)), angle, 0, 360, (255, 0, 255), 1)
+# pixel_points = np.transpose(np.nonzero(mask))  # np.transpose 矩阵转置
+# maskc = np.zeros(img.shape, np.uint8)
+# for x, y in pixel_points:
+#     maskc[x, y] = (255, 0, 255)
+# cv2.imshow('maskc', maskc)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+pass  # ---------平均颜色及平均灰度-------   2019-6-19 14:45:1           平均灰度及颜色求法.....待解决
+# img = cv2.imread('dingdang.jpg')
+# img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# ret, thresh = cv2.threshold(img_g, 125, 255, cv2.THRESH_BINARY)
+# contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+# mask = np.zeros(img_g.shape, np.uint8)
+#
+# x1, y1 = -1, -1
+# def draw_circle(event, x, y, flags, param):
+#     """mouse callback function"""
+#     global x1, y1, mask
+#     if event == cv2.EVENT_LBUTTONDBLCLK:
+#         x1 = x
+#         y1 = y
+#     elif event == cv2.EVENT_RBUTTONDBLCLK:
+#         cv2.rectangle(img, (x1, y1), (x, y), (255, 0, 0), 3)
+#         mask[y1:y, x1:x] = 580
+#         cv2.circle(img, (x1, y1), 5, 255, 2)
+#         cv2.circle(img, (x, y), 5, (0, 255, 0), 2)
+#         cv2.imshow('mask', mask)
+#         cv2.waitKey(10)
+#         mean_val = cv2.mean(img, mask=mask)                                         #   求平均灰度搞不定.......
+#
+#         img[y1:y, x1:x, :] = (mean_val[0], mean_val[1], mean_val[2])                #  区域ROI x,y 位置相反!!!!!!!!
+#
+# # 创建图像与窗口并将窗口与回调函数绑定
+# cv2.namedWindow('image')
+# cv2.setMouseCallback('image', draw_circle)
+# while 1:
+#     cv2.imshow('image', img)
+#     if cv2.waitKey(20) & 0xFF == 27:
+#         break
+# cv2.destroyAllWindows()
+pass  # ---------轮廓的层次结构-------   2019-7-1 21:28:30
+# contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+# cv2.RETR_LIST  提取所有的轮廓，而不去创建任何父子关系
+# cv2.RETR_EXTERNAL 只返回最外边的的轮廓，所有的子轮廓都会被忽略掉。
+# cv2.RETR_CCOMP  返回所有的轮廓并将轮廓分为两级组织结构。
+# cv2.RETR_TREE 返回所有轮廓，并且创建一个完整的组织结构列表.
