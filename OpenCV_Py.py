@@ -883,24 +883,19 @@ area = cv2.contourArea(cnt)
 equi_diameter = np.sqrt(4 * area / np.pi)
 # ---------对象的方向，下面的方法会返回长轴和短轴的长度
 (x, y), (MA, ma), angle = cv2.fitEllipse(cnt)
-print(MA, "go",  ma)
+print(MA, "go", ma)
 # ---------掩模和像素点
-mask = np.zeros(img.shape, np.uint8)
+mask = np.zeros(img_g.shape, np.uint8)
 # 这里一定要使用参数-1, 绘制填充的的轮廓
-cv2.drawContours(mask, contours, -1, (255, 0, 255), 1)
+cv2.drawContours(mask, contours, -1, 255, -1)
 cv2.imshow('mask', mask)
 cv2.waitKey(0)
 # cv2.ellipse(mask, (int(x), int(y)), (int(MA), int(ma)), angle, 0, 360, (255, 0, 255), 1)
 pixel_points = np.transpose(np.nonzero(mask))  # np.transpose 矩阵转置
-cv2.drawContours(mask, [pixel_points], -1, (0, 0, 255), 1)
-cv2.imshow('mask', mask)
-cv2.waitKey(0)
-cv2.imshow('mask', mask)
-cv2.waitKey(0)
-cv2.drawContours(mask, contours, -1, (0, 255, 0), -1)
-cv2.imshow('mask', mask)
+maskc = np.zeros(img.shape, np.uint8)
+for x, y in pixel_points:
+    maskc[x, y] = (255, 0, 255)
+cv2.imshow('maskc', maskc)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
-print('nice job!')
 
