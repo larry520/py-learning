@@ -941,3 +941,133 @@ pass  # ---------轮廓的层次结构-------   2019-7-1 21:28:30
 # cv2.RETR_EXTERNAL 只返回最外边的的轮廓，所有的子轮廓都会被忽略掉。
 # cv2.RETR_CCOMP  返回所有的轮廓并将轮廓分为两级组织结构。
 # cv2.RETR_TREE 返回所有轮廓，并且创建一个完整的组织结构列表.
+pass  # ---------直方图-------   2019-7-2 8:33:42
+# # cv2.calcHist()，np.histogram()
+# # cv2.calcHist(images, channels, mask, histSize, ranges[, hist[, accumulate]])
+# # 1. images: 原图像（图像格式为 uint8 或 float32）。当传入函数时应该
+# # 用中括号 [] 括起来，例如：[img]。
+# # 2. channels: 同样需要用中括号括起来，它会告诉函数我们要统计那幅图
+# # 像的直方图。如果输入图像是灰度图，它的值就是 [0]；如果是彩色图像
+# # 的话，传入的参数可以是 [0]，[1]，[2] 它们分别对应着通道 B，G，R。
+# # 3. mask: 掩模图像。要统计整幅图像的直方图就把它设为 None。但是如
+# # 果你想统计图像某一部分的直方图的话，你就需要制作一个掩模图像，并
+# # 使用它。
+# # 4. histSize:BIN 的数目。也应该用中括号括起来，例如：[256]。
+# # 5. ranges: 像素值范围，通常为 [0，256]
+#
+# img = cv2.imread('girl.jpg', 1)
+# # -------------OpenCV方法  运行速度是np方法的40倍!!!
+# # 别忘了中括号 [img],[0],None,[256],[0,256]，只有 mask 没有中括号
+# hist = cv2.calcHist([img], channels=[0], mask=None, histSize=[256], ranges=[0, 256])
+#
+# # -------------np 方法
+# # img.ravel() 将图像转成一维数组，这里没有中括号。 channel需要通过图像本身获取
+# hist_np, bins = np.histogram(img[:,:,0].ravel(), bins=256, range=[0, 256])
+# plt.subplot(131)
+# plt.plot(hist, color='r')
+# plt.subplot(132)
+# plt.plot(hist_np, color='g')
+#
+# # -------------matplotlib.plot.hist 方法
+# plt.subplot(133)
+# plt.hist(img[:,:,0].ravel(),256,[0,256])
+# plt.show()
+pass  # ---------直方图均衡化-------   2019-7-2 10:33:20
+# # 将区域内灰度直方图分布平均化,增加灰度动态范围
+# #
+# img = cv2.imread('tt.jpg',1)
+# img2 = np.zeros(img.shape, np.uint8)
+# img3 = np.zeros(img.shape, np.uint8)
+# channel = ('r', 'g', 'b')
+# for i,color in enumerate(channel):    # enumerate 创建索引列及元素
+#     #flatten() 将数组变成一维  返回源数据,ravel 不返回
+#     hist,bins = np.histogram(img[:,:,i].flatten(),256,[0,256])
+#     # plt.plot(hist, color = 'g')
+#     # 计算累积分布图
+#     cdf = hist.cumsum()
+#     cdf_normalized = cdf * hist.max()/ cdf.max()
+#     plt.plot(cdf_normalized, color = 'r')
+#     plt.plot(hist, color=color)
+#     # plt.hist(img[:,:,i].flatten(),256,[0,256], color = color)
+#
+#     # -------------构建 Numpy 掩模数组，cdf 为原数组，
+#     # 当数组元素为 0 时，掩盖（计算时被忽略）。
+#     cdf_m = np.ma.masked_equal(cdf,0)
+#     cdf_m = (cdf_m - cdf_m.min())*255/(cdf_m.max()-cdf_m.min())
+#     # 对被掩盖的元素赋值，这里赋值为 0
+#     cdf = np.ma.filled(cdf_m,0).astype('uint8')
+#     img2[:,:,i] = cdf[img[:,:,i]]
+#
+#     # ------------计算均衡化后的直方图和累积分布图
+#     hist,bins = np.histogram(img2[:,:,i].flatten(),256,[0,256])
+#     # plt.plot(hist, color = 'g')
+#     # 计算累积分布图
+#     cdf = hist.cumsum()
+#     cdf_normalized = cdf * hist.max()/ cdf.max()
+#     plt.plot(cdf_normalized, color = 'g')
+#     plt.plot(hist, color=color)
+#     # plt.hist(img2[:,:,i].flatten(),256,[0,256], color = color)
+#
+#     # ------------clahe 有限对比适应性直方图均衡化
+#     #　自适应灰度直方图均衡化,减弱对比度变化较大的影响
+#     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+#     img3[:,:,i] = clahe.apply(img[:,:,i])
+#
+#     # ------------计算均衡化后的直方图和累积分布图
+#     hist, bins = np.histogram(img3[:, :, i].flatten(), 256, [0, 256])
+#     # plt.plot(hist, color = 'g')
+#     # 计算累积分布图
+#     cdf = hist.cumsum()
+#     cdf_normalized = cdf * hist.max() / cdf.max()
+#     plt.plot(cdf_normalized, color='b')
+#     plt.plot(hist, color=color)
+#     # plt.hist(img3[:, :, i].flatten(), 256, [0, 256], color=color)
+#
+#     plt.xlim([0, 256])
+#     plt.legend(('cdf', 'histogram'), loc='upper left')
+#     plt.show()
+#
+# cv2.imshow('image', np.hstack([img, img2, img3]))
+# # cv2.imwrite('tt_cdf.jpg', img2)
+# cv2.waitKey(0)
+#
+# # -------------改变图像的亮度
+# img = cv2.imread('tt.jpg', 0)
+# img2 = np.zeros(img.shape, np.uint8)
+# for i in range(img.shape[0]):
+#     for j in range(img.shape[1]):
+#         img2[i,j] = 255 if 0.8*img[i,j] > 255 else int(0.8*img[i,j])
+# cv2.imshow('compare', np.hstack([img, img2]))
+# cv2.waitKey(0)
+pass  # ---------直方图反向投影-------   2019-7-2 13:54:1
+# 可以用来做图像分割，或者在图像中找寻我们感兴趣的部分。
+
+# target is the image we search in
+target = cv2.imread('lf_H.jpg')
+hsvt = cv2.cvtColor(target, cv2.COLOR_BGR2HSV)
+
+# roi is the object or region of object we need to find
+roi = cv2.imread('good.jpg')
+# roi = target[100:200, 100:200,:]
+cv2.imshow('roi', roi)
+hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+
+# find the histograms using calcHist. Can be done with np.histogram2d also
+# calculating object histogram
+roihist = cv2.calcHist([hsv], [0, 1], None, [180, 256], [0, 180, 0, 256])
+# normalize histogram and apply back projection
+cv2.normalize(roihist,roihist,0,255,cv2.NORM_MINMAX)
+# calcBackProject(images, channels, hist, ranges, scale, dst=None)
+dst = cv2.calcBackProject([hsvt],[0,1],roihist,[0,180,0,256],1)
+
+# Now convolute with circular disc
+disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+cv2.filter2D(dst,-1,disc,dst)
+
+# threshold and binary AND
+ret,thresh = cv2.threshold(dst,50,255,0)
+thresh = cv2.merge((thresh,thresh,thresh))
+res = cv2.bitwise_and(target,thresh)
+res = np.hstack((target,thresh,res))
+cv2.imshow('res.jpg',res)
+cv2.waitKey(0)
