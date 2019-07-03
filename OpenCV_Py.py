@@ -661,7 +661,7 @@ pass  # ---------Canny 边缘检测--------   2019-6-13 19:44:9
 #     pass
 #
 #
-# img = cv2.imread('girl.jpg', 0)
+# img = cv2.imread('jgg.jpg', 0)
 # cv2.namedWindow('Canny detection')
 # cv2.createTrackbar('minVal', 'Canny detection', 0, 1000, nothing)
 # cv2.createTrackbar('maxVal', 'Canny detection', 0, 1000, nothing)
@@ -903,35 +903,46 @@ pass  # ---------轮廓性质-------   2019-6-19 14:45:1
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
 pass  # ---------平均颜色及平均灰度-------   2019-6-19 14:45:1           平均灰度及颜色求法.....待解决
-# img = cv2.imread('dingdang.jpg')
+# img = cv2.imread('lf_H.jpg')
+# img2 = img.copy()
 # img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # ret, thresh = cv2.threshold(img_g, 125, 255, cv2.THRESH_BINARY)
 # contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-# mask = np.zeros(img_g.shape, np.uint8)
+#
+#
+# # img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+# img_hsv =img.copy()
 #
 # x1, y1 = -1, -1
 # def draw_circle(event, x, y, flags, param):
 #     """mouse callback function"""
-#     global x1, y1, mask
+#     global x1, y1, img2
+#     mask = np.zeros(img_g.shape, np.uint8)
 #     if event == cv2.EVENT_LBUTTONDBLCLK:
 #         x1 = x
 #         y1 = y
 #     elif event == cv2.EVENT_RBUTTONDBLCLK:
 #         cv2.rectangle(img, (x1, y1), (x, y), (255, 0, 0), 3)
-#         mask[y1:y, x1:x] = 580
-#         cv2.circle(img, (x1, y1), 5, 255, 2)
-#         cv2.circle(img, (x, y), 5, (0, 255, 0), 2)
+#         mask[y1:y, x1:x] = 255  # 色度180 饱和度255 明度255
+#
 #         cv2.imshow('mask', mask)
 #         cv2.waitKey(10)
-#         mean_val = cv2.mean(img, mask=mask)                                         #   求平均灰度搞不定.......
-#
-#         img[y1:y, x1:x, :] = (mean_val[0], mean_val[1], mean_val[2])                #  区域ROI x,y 位置相反!!!!!!!!
-#
+#         mean_img = np.zeros((abs(x-x1),abs(y-y1),3), np.uint8)
+#         for i in range(3):
+#             mean_val = cv2.mean(img[:,:,i], mask=mask)                                         #   单通道处理！.......
+#             print(mean_val)
+#             print(img[:,:,i].shape)
+#             img2[y1:y, x1:x,i] = int(mean_val[0]) #  区域ROI x,y 位置相反!!!!!!!!
+#             mean_img[:,:,i] = int(mean_val[0])
+#         cv2.circle(img, (x1, y1), 5, 255, 2)
+#         cv2.circle(img, (x, y), 5, (0, 255, 0), 2)
+#         cv2.imshow('mean_img', mean_img)
 # # 创建图像与窗口并将窗口与回调函数绑定
 # cv2.namedWindow('image')
 # cv2.setMouseCallback('image', draw_circle)
 # while 1:
 #     cv2.imshow('image', img)
+#     cv2.imshow('img2', img2)
 #     if cv2.waitKey(20) & 0xFF == 27:
 #         break
 # cv2.destroyAllWindows()
@@ -1040,34 +1051,164 @@ pass  # ---------直方图均衡化-------   2019-7-2 10:33:20
 # cv2.imshow('compare', np.hstack([img, img2]))
 # cv2.waitKey(0)
 pass  # ---------直方图反向投影-------   2019-7-2 13:54:1
-# 可以用来做图像分割，或者在图像中找寻我们感兴趣的部分。
-
-# target is the image we search in
-target = cv2.imread('lf_H.jpg')
-hsvt = cv2.cvtColor(target, cv2.COLOR_BGR2HSV)
-
-# roi is the object or region of object we need to find
-roi = cv2.imread('good.jpg')
-# roi = target[100:200, 100:200,:]
-cv2.imshow('roi', roi)
-hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-
-# find the histograms using calcHist. Can be done with np.histogram2d also
-# calculating object histogram
-roihist = cv2.calcHist([hsv], [0, 1], None, [180, 256], [0, 180, 0, 256])
-# normalize histogram and apply back projection
-cv2.normalize(roihist,roihist,0,255,cv2.NORM_MINMAX)
-# calcBackProject(images, channels, hist, ranges, scale, dst=None)
-dst = cv2.calcBackProject([hsvt],[0,1],roihist,[0,180,0,256],1)
-
-# Now convolute with circular disc
-disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
-cv2.filter2D(dst,-1,disc,dst)
-
-# threshold and binary AND
-ret,thresh = cv2.threshold(dst,50,255,0)
-thresh = cv2.merge((thresh,thresh,thresh))
-res = cv2.bitwise_and(target,thresh)
-res = np.hstack((target,thresh,res))
-cv2.imshow('res.jpg',res)
-cv2.waitKey(0)
+# # # 可以用来做图像分割，或者在图像中找寻我们感兴趣的部分。
+# #
+# # target is the image we search in
+# target = cv2.imread('lf_H.jpg')
+# hsvt = cv2.cvtColor(target, cv2.COLOR_BGR2HSV)
+#
+# # roi is the object or region of object we need to find
+# roi = cv2.imread('good.jpg')
+# # roi = target[100:200, 100:200,:]
+# cv2.imshow('roi', roi)
+# hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+#
+# # find the histograms using calcHist. Can be done with np.histogram2d also
+# # calculating object histogram
+# roihist = cv2.calcHist([hsv], [0, 1], None, [180, 256], [0, 180, 0, 256])
+#
+# # normalize histogram and apply back projection 归一化
+# cv2.normalize(roihist,roihist,0,255,cv2.NORM_MINMAX)
+# # calcBackProject(images, channels, hist, ranges, scale, dst=None)
+# dst = cv2.calcBackProject([hsvt],[0,1],roihist,[0,180,0,256],1)
+#
+# #  cv2.getStructuringElement 构建一个椭圆的核
+# disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+# # cv2.filter2D  此处卷积可以把分散的点连在一起
+# cv2.filter2D(dst,-1,disc,dst)
+#
+# # threshold and binary AND
+# ret,thresh = cv2.threshold(dst,50,255,0)
+# thresh = cv2.merge((thresh,thresh,thresh))
+# res = cv2.bitwise_and(target,thresh)
+# res = np.hstack((target,thresh,res))
+# cv2.imshow('res.jpg',res)
+# cv2.waitKey(0)
+pass  # ---------图像傅里叶变换与逆变换-------  2019-7-2 19:34:16
+# img = cv2.imread('ball.jpg',0)
+#
+# # 傅里叶变换在图像尺寸在2的指数时效率最高，数组的大小是 2，3，5 的倍数时效率较高，可以给图像补零实现
+# rows,cols = img.shape
+# nrows = cv2.getOptimalDFTSize(rows)
+# ncols = cv2.getOptimalDFTSize(cols)
+# nimg = np.zeros((nrows, ncols), np.uint8)
+# nimg[:rows, :cols] = img
+# print('rows,cols:',rows, cols,'  nrows, ncols:', nrows, ncols)
+#
+# # --------------OpenCv 中的傅里叶变换
+# dft = cv2.dft(np.float32(nimg),flags = cv2.DFT_COMPLEX_OUTPUT)
+# # 将直流分量平移到图像中间
+# dft_shift = np.fft.fftshift(dft)
+#
+# # 双通道 dft_shift[:,:,0]为实部， dft_shift[:,:,1])为虚部
+# # cv2.magnitude(x,y)  sqrt(x^2 +y^2)
+# # magnitude_spectrum  幅值
+# magnitude_spectrum = 20*np.log(cv2.magnitude(dft_shift[:,:,0],dft_shift[:,:,1]))
+# # 可选用cv2.cartToPolar同时获得幅值与相位
+# # magnitude_spectrum, polar = cv2.cartToPolar(dft_shift[:,:,0],dft_shift[:,:,1])
+# # cv2.imshow() 在两个图片深度不一样时显示会异常
+# magnitude_spectrum = np.uint8(magnitude_spectrum)
+# img_g = np.hstack([nimg, magnitude_spectrum])
+# cv2.imshow('orig & DFT', img_g)
+#
+# # 在图像中央增加60*60 滤波窗口，过滤低频分量
+# rows, cols = nimg.shape
+# crow, ccol = int(rows/2) , int(cols/2)
+# mask = np.ones((rows, cols,2), np.uint8)
+# mask[crow-30:crow+30, ccol-30:ccol+30]=0
+#
+# # --------------增加滤波掩模
+# fshift = dft_shift*mask    # 实行过滤
+# f_ishift = np.fft.ifftshift(fshift)  # 平移回去
+#
+# # --------------OpenCv 中的傅里叶逆变换  2019-7-3 10:55:17
+# img_back = cv2.idft(f_ishift)
+# img_back = cv2.magnitude(img_back[:,:,0], img_back[:,:,1])
+#
+# plt.imshow(img_back)
+# plt.show()
+# cv2.waitKey(0)
+pass  # ---------模板匹配-------  2019-7-3 15:23:23
+# # cv2.matchTemplate()   在一副大图中搜寻查找模版图像位置
+# # cv2.minMaxLoc()  获取最小值和最大值的位置， 第一个值为矩形左上角的点（位置）
+# # （w，h）为模板矩形的宽和高
+#
+# img = cv2.imread('ball.jpg', 0)
+# img2 = img.copy()
+# template = cv2.imread('moban.jpg', 0)
+# w, h = template.shape[::-1]  # 逆序    h,w = template.shape
+# print(template.shape)
+# # All the 6 methods for comparison in a list
+# methods = ['cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED', 'cv2.TM_CCORR',
+#            'cv2.TM_CCORR_NORMED', 'cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED']
+# for meth in methods:
+#     img  = img2.copy()
+#     # exec 语句用来执行储存在字符串或文件中的 Python 语句。
+#     # 例如，我们可以在运行时生成一个包含 Python 代码的字符串，然后使用 exec 语句执行这些语句。
+#     # eval 语句用来计算存储在字符串中的有效 Python 表达式
+#     method = eval(meth)
+#
+#     # 开始匹配并获取位置
+#     res = cv2.matchTemplate(img, template, method)
+#     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+#
+#     # 使用不同的比较方法，对结果的解释不同
+#     # If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
+#     if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+#         top_left = min_loc
+#     else:
+#         top_left = max_loc
+#     bottom_right = (top_left[0] +w, top_left[1]+h)
+#     print(top_left, bottom_right)
+#     # 加个矩形框显示出来
+#     cv2.rectangle(img, top_left, bottom_right, 255, 2)
+#
+#     plt.subplot(121), plt.imshow(res, cmap='gray')
+#     plt.title('Matching Result'), plt.xticks([]), plt.yticks([])
+#     plt.subplot(122), plt.imshow(img, cmap='gray')
+#     plt.title('Detected Point'), plt.xticks([]), plt.yticks([])
+#     plt.suptitle(meth)
+#     # plt.show()
+pass  # ---------多对象的模板匹配-------  2019-7-3 20:12:29
+# 通过设定阈值对匹配结果进行筛选
+# img_rgb = cv2.imread('mario.png')
+# img = img_rgb.copy()
+# img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+# template = cv2.imread('mario_coin.png',0)
+# w, h = template.shape[::-1]
+#
+# # ---------多对象的模板匹配加阈值进行筛选
+# res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
+# threshold = 0.92
+# #umpy.where(condition[, x, y])
+# #Return elements, either from x or y, depending on condition.
+# #If only condition is given, return condition.nonzero().
+# loc = np.where( res >= threshold)
+# for pt in zip(*loc[::-1]):
+#     cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 1)
+# cv2.imshow('find_coins',np.hstack([img, img_rgb]))
+# cv2.waitKey(0)
+pass  # ---------OpenCV 中的霍夫变换-------  2019-7-3 21:46:3
+# # 直线方程由 rho, theta 可确定x*cos(theta) + y*sin(theta) - rho = 0
+# # 创建一个 2D 数组（累加器），初始化累加器，所有的值都为 0。行表示 rho，列表示 theta
+# # 对图像进行二值化，对图像上的非零像素进行遍历，对于某像素（x,y）,寻找使直线方程成立的rho,theta对，并在2D数据累加1
+# img = cv2.imread('jgg.jpg')
+# gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# edges = cv2.Canny(gray, 30, 150, apertureSize=3)
+# cv2.imshow('e', edges)
+#
+# # HoughLines(image, rho, theta, threshold)  rho theta 为相应参数分辨率
+# lines = cv2.HoughLines(edges, 1, np.pi / 180, 150)
+#
+# for rho, theta in lines[:,0]:
+#     a = np.cos(theta)
+#     b = np.sin(theta)
+#     x0 = a * rho
+#     y0 = b * rho
+#     x1 = int(x0 + 1000 * (-b))
+#     y1 = int(y0 + 1000 * (a))
+#     x2 = int(x0 - 1000 * (-b))
+#     y2 = int(y0 - 1000 * (a))
+#     cv2.line(img, (x1, y1), (x2, y2), (255, 0, 255), 2)
+# cv2.imshow('houghlines3.jpg', img)
+# cv2.waitKey(0)
