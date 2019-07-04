@@ -114,9 +114,9 @@ pass  # ---------鼠标当画笔-------------
 # cv2.destroyAllWindows()
 
 
-# # # 高级应用
-# #
-# # 当鼠标按下时变为True
+# # 高级应用
+#
+# 当鼠标按下时变为True
 # darwing = False
 # # 如果mode 为 true 时绘制矩形， 按下'm' 变成绘制曲线
 # mode = True
@@ -1151,7 +1151,7 @@ pass  # ---------模板匹配-------  2019-7-3 15:23:23
 #     # 开始匹配并获取位置
 #     res = cv2.matchTemplate(img, template, method)
 #     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-#
+#     print(res.shape)
 #     # 使用不同的比较方法，对结果的解释不同
 #     # If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
 #     if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
@@ -1168,18 +1168,23 @@ pass  # ---------模板匹配-------  2019-7-3 15:23:23
 #     plt.subplot(122), plt.imshow(img, cmap='gray')
 #     plt.title('Detected Point'), plt.xticks([]), plt.yticks([])
 #     plt.suptitle(meth)
-#     # plt.show()
+#     plt.show()
 pass  # ---------多对象的模板匹配-------  2019-7-3 20:12:29
-# 通过设定阈值对匹配结果进行筛选
+# # 通过设定阈值对匹配结果进行筛选
 # img_rgb = cv2.imread('mario.png')
 # img = img_rgb.copy()
 # img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-# template = cv2.imread('mario_coin.png',0)
-# w, h = template.shape[::-1]
+# template1 = cv2.imread('mario_coin.png',0)
+#
+# # 加边扩充测试对模板检测的影响
+# w, h = template1.shape[::-1]
+# template = np.zeros((h+10, w+10), np.uint8)
+# template[:h, :w] =template1
+# cv2.imshow('temp', template)
 #
 # # ---------多对象的模板匹配加阈值进行筛选
 # res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
-# threshold = 0.92
+# threshold = 0.8
 # #umpy.where(condition[, x, y])
 # #Return elements, either from x or y, depending on condition.
 # #If only condition is given, return condition.nonzero().
@@ -1212,3 +1217,84 @@ pass  # ---------OpenCV 中的霍夫变换-------  2019-7-3 21:46:3
 #     cv2.line(img, (x1, y1), (x2, y2), (255, 0, 255), 2)
 # cv2.imshow('houghlines3.jpg', img)
 # cv2.waitKey(0)
+pass  # ---------模板的创建与检测-------  2019-7-4 10:9:36
+# # 根据一张原图找出ROI并创建模板，利用创建的模板对其他图片进行匹配
+#
+# def axis_pick(event, x, y, flags, param):
+#     """获取鼠标点击坐标，确定ROI区域"""
+#     global x1, y1, x2, y2, axis_Nm, img2
+#     if event == cv2.EVENT_LBUTTONDBLCLK:
+#         x1, y1 = x,y
+#         axis_Nm = 1
+#         cv2.circle(img2, (x,y),2, (255,0,0), -1)
+#     elif event == cv2.EVENT_RBUTTONDBLCLK and axis_Nm == 1 :
+#         x2, y2 = x, y
+#         axis_Nm = 2
+#         cv2.circle(img2, (x,y),2, (0,0,255), -1)
+#
+# # 找一幅图并选择创建模板
+# def model_creat(img_g, type):
+#     """
+#     创建模板
+#     :param img_g: input src
+#     :param type:  model type : circle, rectangle
+#     :return: model img
+#     """
+#     global img2 , radius
+#     cv2.namedWindow('model creat', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
+#     cv2.waitKey(10)
+#     cv2.setMouseCallback('model creat', axis_pick)
+#     while 1:
+#         cv2.imshow('model creat', img2)
+#         key = cv2.waitKey(1)
+#         if key == 27:
+#             break
+#     if type == 'circle':   #　circle 点水平直径
+#         radius = int(abs((x2-x1)/2))
+#         temp = img_g[(y1-radius):(y2+radius), x1:x2]
+#     elif type == 'rectangle':  #　rectangle 点对角
+#         temp = img_g[y1:y2, x1:x2]
+#
+#     return temp
+#
+# # 模板类型
+# TYPE = 'circle'
+#
+# img = cv2.imread('E:\AOI_test\src\ (1).png')
+# img2 = img.copy()
+# img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# # 调用模板创建函数生成模板
+# template = model_creat(img_g, TYPE)
+# w, h = template.shape[::-1]
+#
+# cv2.imshow('template',template)
+# # 使窗口可以按比例拉伸
+# cv2.namedWindow('result', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
+# for i in range(1,20):
+#     img_target = cv2.imread(r'E:\AOI_test\src\ ('+str(i)+').png')
+#     res = cv2.matchTemplate(img_target[:,:,0],template,cv2.TM_CCOEFF_NORMED)
+#
+#     # # 单对象匹配，只需得分最高的匹配项
+#     # min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+#     # if TYPE == 'circle':
+#     #     cv2.circle(img_target, (max_loc[0] + radius, max_loc[1] + radius), radius, (0, 255, 0), 3)
+#     # elif TYPE == 'rectangle':
+#     #     cv2.rectangle(img_target, max_loc, (max_loc[0] + w, max_loc[1] + h), (0, 0, 255), 3)
+#     #
+#     #
+#     # 多对象匹配
+#     threshold = 0.8
+#     #Return elements, either from x or y, depending on condition.
+#     #If only condition is given, return condition.nonzero().
+#     loc = np.where( res >= threshold)
+#     for pt in zip(*loc[::-1]):
+#         if TYPE == 'circle':
+#             cv2.circle(img_target, (pt[0]+radius, pt[1]+radius), radius, (0, 255, 0), 2)
+#         elif TYPE == 'rectangle':
+#             cv2.rectangle(img_target, pt, (pt[0] + w, pt[1] + h), (0,255,0), 2)
+#
+#     cv2.imshow('result', img_target)
+#     k = cv2.waitKey(0)
+#     if k == 27:
+#         break
+pass  # ---------Hough 圆环变换-------  2019-7-4 15:31:17

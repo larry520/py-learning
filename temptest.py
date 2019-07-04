@@ -3,9 +3,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-mat = np.zeros((100,50,3))
-mat[60:80, 40:50]=[255, 0,0]
-cv2.rectangle(mat,(40,60), (50,80), (255,0,255),3)
 
-cv2.imshow('mag',mat)
+print(r'E:\AOI_test\src\ ('+str(1)+').png')
+img = cv2.imread(r'E:\AOI_test\src\ ('+str(1)+').png')
+cv2.imshow('f', img)
 cv2.waitKey(0)
