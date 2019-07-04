@@ -160,3 +160,4 @@ with tf.Session() as sess:
     # 模型结果测试
     print("x=0.2, z=", sess.run(z, feed_dict={X: 0.2}))
 
+tensorBoard –logdir E:\pydata\HCNA-AI\py-learning.git\trunk\log\mnist_with_summaries

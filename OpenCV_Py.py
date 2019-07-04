@@ -655,13 +655,13 @@ pass  # ---------图像梯度/Sobel算子，Scharr算子，Laplacian 算子-----
 # plt.title('Sobel abs(CV_64F)'), plt.xticks([]), plt.yticks([])
 # plt.show()
 pass  # ---------Canny 边缘检测--------   2019-6-13 19:44:9
-#
-#
+# #
+# #
 # def nothing(x):
 #     pass
 #
 #
-# img = cv2.imread('jgg.jpg', 0)
+# img = cv2.imread('1.png', 0)
 # cv2.namedWindow('Canny detection')
 # cv2.createTrackbar('minVal', 'Canny detection', 0, 1000, nothing)
 # cv2.createTrackbar('maxVal', 'Canny detection', 0, 1000, nothing)
@@ -1298,3 +1298,27 @@ pass  # ---------模板的创建与检测-------  2019-7-4 10:9:36
 #     if k == 27:
 #         break
 pass  # ---------Hough 圆环变换-------  2019-7-4 15:31:17
+#   不起作用哦，后面再来研究你!!!
+#
+# img = cv2.imread('2.jpg', 0)
+#
+# img = cv2.medianBlur(img,5)
+# cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+#
+# # edges = cv2.Canny(img, 200, 500)
+# cv2.imshow('img',np.hstack([img]))
+# print("let's go")
+# circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,20,
+#                            param1=50,param2=30,minRadius=0,maxRadius=0)
+# circles = np.uint16(np.around(circles))
+# print("hi, I'm here")
+# for i in circles[0,:]:
+#     if 0<i[2]<30  :
+#         # draw the outer circle
+#         cv2.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
+#         # draw the center of the circle
+#         cv2.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
+# cv2.namedWindow('cimg', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
+# cv2.imshow('cimg', cimg)
+# cv2.waitKey(0)
+
