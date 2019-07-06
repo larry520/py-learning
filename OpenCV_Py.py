@@ -4,7 +4,7 @@ import cv2
 from matplotlib import pyplot as plt
 import random
 from PIL import Image
-
+import time
 
 def nothing(x):
     pass
@@ -1218,7 +1218,7 @@ pass  # ---------OpenCV 中的霍夫变换-------  2019-7-3 21:46:3
 # cv2.imshow('houghlines3.jpg', img)
 # cv2.waitKey(0)
 pass  # ---------模板的创建与检测-------  2019-7-4 10:9:36
-# # 根据一张原图找出ROI并创建模板，利用创建的模板对其他图片进行匹配
+# 根据一张原图找出ROI并创建模板，利用创建的模板对其他图片进行匹配
 #
 # def axis_pick(event, x, y, flags, param):
 #     """获取鼠标点击坐标，确定ROI区域"""
@@ -1259,8 +1259,9 @@ pass  # ---------模板的创建与检测-------  2019-7-4 10:9:36
 #
 # # 模板类型
 # TYPE = 'circle'
-#
 # img = cv2.imread('E:\AOI_test\src\ (1).png')
+# # img = cv2.imread('DetectCirclesExample_01.png')
+#
 # img2 = img.copy()
 # img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # # 调用模板创建函数生成模板
@@ -1272,6 +1273,7 @@ pass  # ---------模板的创建与检测-------  2019-7-4 10:9:36
 # cv2.namedWindow('result', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
 # for i in range(1,20):
 #     img_target = cv2.imread(r'E:\AOI_test\src\ ('+str(i)+').png')
+#     # img_target = cv2.imread('DetectCirclesExample_01.png')
 #     res = cv2.matchTemplate(img_target[:,:,0],template,cv2.TM_CCOEFF_NORMED)
 #
 #     # # 单对象匹配，只需得分最高的匹配项
@@ -1321,4 +1323,119 @@ pass  # ---------Hough 圆环变换-------  2019-7-4 15:31:17
 # cv2.namedWindow('cimg', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
 # cv2.imshow('cimg', cimg)
 # cv2.waitKey(0)
+pass  # --------分水岭图像分割 ------  2019-7-5 9:49:1
+#
+# # img1 = cv2.imread('DetectCirclesExample_01.png', 0)
+# img = cv2.imread('coin.jpg')
+# img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# # Otsu’s 二值化
+# ret, thresh = cv2.threshold(img_g, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+# cv2.imshow('Otsu' ,thresh)
+#
+#
+# # 开运算，先腐蚀后膨胀 去除背景中的噪点
+# kernel = np.ones((3,3), np.uint8)
+# opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)  # iterations=2 连续做2次
+# cv2.imshow('opening' ,opening)
+#
+# # 对图膨胀，剩下的是确定的背景区域
+# sure_bg = cv2.dilate(opening, kernel, iterations=3)
+# cv2.imshow('sure_bg' ,sure_bg)
+# # ------------距离变换，含义为计算图像中非零像素点到最近零像素点的距离
+# # 根据各个像素点的距离值，设置为不同的灰度值。这样就完成了二值图像的距离变换
+# dist_transform = cv2.distanceTransform(opening,1,5)
+# ret, sure_fg = cv2.threshold(dist_transform,0.7*dist_transform.max(), 255, cv2.THRESH_BINARY)
+#
+# # # 显示下距离变换结果
+# # dist_transform = dist_transform*(255/dist_transform.max()) # 太暗，亮度等比例放大，最亮的放大到255
+# # dist_transform = np.uint8(dist_transform)
+# # cv2.imshow('dist_transform' ,dist_transform)
+#
+# # 找出未知区域，后续采用分水岭检测
+# sure_fg = np.uint8(sure_fg)
+# unknown = cv2.subtract(sure_bg, sure_fg)   # 矩阵减法 sure_bg - sure_fg
+# # unknown2 = sure_bg - sure_fg   # 和上式等价，上式执行效率更高,约为2倍
+# cv2.imshow('unknown' ,unknown)
+#
+# # Marker labelling 对图象中的对象做标记
+# # cv2.connectedComponents(src) 将图中背景标记为0，其他对象按顺序标记为1，2，3...
+# ret, markers1 = cv2.connectedComponents(sure_fg)
+# # markers1 = np.uint8(markers1)
+# # cv2.imshow('markers1' ,markers1)
+# # Add one to all labels so that sure background is not 0, but 1
+# markers = markers1+1
+#
+#
+# # cv2.imshow('markers' ,markers)
+# # Now, mark the region of unknown with zero  看到没有！ 矩阵元素可以通过加表达式来进行选择！！！
+# markers[unknown==255] = 0
+# plt.imshow(markers)
+# plt.show()
+# # -------咚咚咚  分水岭图像分割 边界会被标记为-1 对象标记为1 markers3内元素是bool变量
+# markers3 = cv2.watershed(img,markers)
+# img[markers3 == -1] = [255,0,0]
+# cv2.imshow('img' ,img)
+#
+# cv2.waitKey(0)
+pass  # --------角点检测 ------  2019-7-5 14:43:51
+# # cv2.cornerHarris()
+# # • img - 数据类型为 float32 的输入图像。
+# # • blockSize - 角点检测中要考虑的领域大小。
+# # • ksize - Sobel 求导中使用的窗口大小
+# # • k - Harris 角点检测方程中的自由参数，取值参数为 [0,04，0.06].
+# filename = 'zhiheren.jpg'
+# img = cv2.imread(filename)
+# gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+# gray = np.float32(gray)
+# # 输入图像必须是 float32，最后一个参数在 0.04 到 0.05 之间
+# dst = cv2.cornerHarris(gray,2,3,0.04)
+# #result is dilated for marking the corners, not important
+# dst = cv2.dilate(dst,None)
+# # Threshold for an optimal value, it may vary depending on the image.
+# img2 = img.copy()
+# img2[dst>0.01*dst.max()]=[0,0,255]
+# cv2.imshow('dst general',img2)
+# # cv2.waitKey(0)
+#
+# # --------亚像素角点检测 ------  2019-7-5 17:14:0
+# ret, dst = cv2.threshold(dst,0.01*dst.max(),255,0)
+# dst = np.uint8(dst)
+# cv2.imshow('dst',dst)
+# ret, labels, stats, centroids = cv2.connectedComponentsWithStats(dst)
+#
+# # define the criteria to stop and refine the corners 定义停止条件并提取角点
+# criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
+# # 返回值由角点坐标组成的一个数组（而非图像）
+# corners = cv2.cornerSubPix(gray,np.float32(centroids),(5,5),(-1,-1),criteria)
+#
+# # Now draw them
+# res = np.hstack((centroids,corners))
+# #np.int0 可以用来省略小数点后面的数字（非四㮼五入）。
+# res = np.int0(res)
+# img[res[:,1],res[:,0]]=[0,0,255]         # 瞅瞅，快来瞅瞅，又一种矩阵元素操作！！！
+# img[res[:,3],res[:,2]] = [0,255,0]
+# cv2.namedWindow('subpixel5.png', cv2.WINDOW_NORMAL|cv2.WINDOW_KEEPRATIO)
+# cv2.imshow('subpixel5.png',img)
+# cv2.waitKey(0)
+pass  # --------Shi-Tomasi 角点检测 & 适合于跟踪的图像特征 ------  2019-7-6 9:24:46
+# # 输入的应该是灰度图像
+# # 想要检测到的角点数目。再设置角点的质量水平，0到 1 之间。它代表了角点的最低质量，低于这个数的所有角点都会被忽略。
+# # 最后在设置两个角点之间的最短欧式距离。  R = min( 人1 ， 人2）
+# # cv2.goodFeatureToTrack(image, maxCorners, qualityLevel, minDistance)
+#
+# img = cv2.imread('zhiheren.jpg')
+# img2 = img.copy()
+# gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#
+# # 进行角点检测， 返回的是检测到角点的坐标[[[x1,y1]] [[x2,y2]] ...]
+# corners = cv2.goodFeaturesToTrack(gray, 20, 0.51, 20)
+# corners = np.int0(corners)  # 舍弃小数部分
+# print(corners[:3])
+# for i in corners:
+#     x,y = i.ravel()
+#     cv2.circle(img, (x,y), 3, (0,0,255), -1)
+#
+# cv2.imshow('corner detected result', np.hstack([img2, img]))
+# cv2.waitKey(0)
+
 
