@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 import random
 from PIL import Image
 import time
+import glob
 
 def nothing(x):
     pass
@@ -1218,8 +1219,8 @@ pass  # ---------OpenCV 中的霍夫变换-------  2019-7-3 21:46:3
 # cv2.imshow('houghlines3.jpg', img)
 # cv2.waitKey(0)
 pass  # ---------模板的创建与检测-------  2019-7-4 10:9:36
-# 根据一张原图找出ROI并创建模板，利用创建的模板对其他图片进行匹配
-#
+# # 根据一张原图找出ROI并创建模板，利用创建的模板对其他图片进行匹配
+# #
 # def axis_pick(event, x, y, flags, param):
 #     """获取鼠标点击坐标，确定ROI区域"""
 #     global x1, y1, x2, y2, axis_Nm, img2
@@ -1259,7 +1260,7 @@ pass  # ---------模板的创建与检测-------  2019-7-4 10:9:36
 #
 # # 模板类型
 # TYPE = 'circle'
-# img = cv2.imread('E:\AOI_test\src\ (1).png')
+# img = cv2.imread('E:\AOI_test\src\ (2).png')
 # # img = cv2.imread('DetectCirclesExample_01.png')
 #
 # img2 = img.copy()
@@ -1271,7 +1272,7 @@ pass  # ---------模板的创建与检测-------  2019-7-4 10:9:36
 # cv2.imshow('template',template)
 # # 使窗口可以按比例拉伸
 # cv2.namedWindow('result', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
-# for i in range(1,20):
+# for i in range(2,20):
 #     img_target = cv2.imread(r'E:\AOI_test\src\ ('+str(i)+').png')
 #     # img_target = cv2.imread('DetectCirclesExample_01.png')
 #     res = cv2.matchTemplate(img_target[:,:,0],template,cv2.TM_CCOEFF_NORMED)
@@ -1282,12 +1283,12 @@ pass  # ---------模板的创建与检测-------  2019-7-4 10:9:36
 #     #     cv2.circle(img_target, (max_loc[0] + radius, max_loc[1] + radius), radius, (0, 255, 0), 3)
 #     # elif TYPE == 'rectangle':
 #     #     cv2.rectangle(img_target, max_loc, (max_loc[0] + w, max_loc[1] + h), (0, 0, 255), 3)
-#     #
-#     #
+#     # #
+#
 #     # 多对象匹配
-#     threshold = 0.8
-#     #Return elements, either from x or y, depending on condition.
-#     #If only condition is given, return condition.nonzero().
+#     threshold = 0.9
+#     # Return elements, either from x or y, depending on condition.
+#     # If only condition is given, return condition.nonzero().
 #     loc = np.where( res >= threshold)
 #     for pt in zip(*loc[::-1]):
 #         if TYPE == 'circle':
@@ -1437,5 +1438,367 @@ pass  # --------Shi-Tomasi 角点检测 & 适合于跟踪的图像特征 ------ 
 #
 # cv2.imshow('corner detected result', np.hstack([img2, img]))
 # cv2.waitKey(0)
+pass  # --------OpenCV 中的 ORB 算法--------- 2019-7-8 11:1:45
+# """检测特征点，绘画出特征点"""
+# img = cv2.imread('lf_H.jpg', 0)
+# # Initiate STAR detector
+# orb = cv2.ORB_create()
+# # find the keypoints with ORB
+# kp = orb.detect(img, None)
+# # compute the descriptors with ORB
+# kp, des = orb.compute(img, kp)
+# # draw only keypoints location,not size and orientation
+# img2 = cv2.drawKeypoints(img, kp, None, color=(0, 255, 0), flags=0)
+# plt.imshow(img2), plt.show()
+pass  # --------对 ORB 描述符进行蛮力匹配--------- 2019-7-8 11:40:55
+# brute-force匹配具有旋转不变性
+# img1 = cv2.imread('girl2_mouth.jpg', 0)  # queryImage
+# img2 = cv2.imread('girl2.jpg', 0)  # trainImage
+#
+# # Initiate SIFT detector
+# orb = cv2.ORB_create()
+#
+# # find the keypoints and descriptors with SIFT
+# kp1, des1 = orb.detectAndCompute(img1, None)
+# kp2, des2 = orb.detectAndCompute(img2, None)
+#
+# # create BFMatcher object
+# bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+# # Match descriptors.
+# matches = bf.match(des1, des2)
+# # Sort them in the order of their distance.
+# # 将匹配结果按特征点之间的距离进行降序
+# # 排列，这样最佳匹配就会排在前面了。
+# matches = sorted(matches, key=lambda x: x.distance)
+#
+# # # Draw first 10 matches.
+# img3 = cv2.drawMatches(img1, kp1, img2, kp2, matches[:10], None, flags=2)
+# cv2.imshow('img match', img3)
+# cv2.waitKey(0)
+pass  # -------对 SIFT 描述符进行蛮力匹配和比值测试--------- 2019-7-8 14:36:53
+# # # brute-force匹配具有旋转不变性
+# img1 = cv2.imread('girl2_mouth.jpg', 0)  # queryImage
+# img2 = cv2.imread('girl2.jpg', 0)  # trainImage
+#
+# # Initiate SIFT detector
+# sift = cv2.ORB_create()
+# # find the keypoints and descriptors with SIFT
+# kp1, des1 = sift.detectAndCompute(img1, None)
+# kp2, des2 = sift.detectAndCompute(img2, None)
+#
+# # BFMatcher with default params
+# bf = cv2.BFMatcher()
+# matches = bf.knnMatch(des1, des2, k=2)
+#
+# # Apply ratio test
+# # 比值测试，首先获取与 A 距离最近的点 B（最近）和 C（次近），只有当 B/C
+# # 小于阈值时（0.25）才被认为是匹配，因为假设匹配是一一对应的，真正的匹配的理想距离为 0
+# good = []
+# for m, n in matches:
+#     if m.distance < 0.35 * n.distance:
+#         good.append([m])
+# # cv2.drawMatchesKnn expects list of lists as matches.
+#
+# img3 = cv2.drawMatchesKnn(img1, kp1, img2, kp2, good[:10], None, flags=2)
+# cv2.imshow('img match2', img3)
+# cv2.waitKey(0)
+pass  # -------Meanshift 和 Camshift--------- 2019-7-8 16:21:21
+# # Meanshift 窗口不变 和 Camshift 窗口随图像变化而变化
+# cap = cv2.VideoCapture('meanshift_video.mp4')
+#
+# # take first frame of the video 取视频的第一帧
+# ret, frame = cap.read()
+#
+# # 建立初始化窗口位置及尺寸
+# # r, h, c, w = 250, 90, 200, 125
+# # track_window = (c, r, w, h)
+#
+# model = cv2.imread('vidio_test.jpg', 0)
+# h, w = model.shape[:2]
+# res = cv2.matchTemplate(frame[:,:,0],model,cv2.TM_CCOEFF_NORMED)
+# min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+# cv2.rectangle(frame,max_loc,(max_loc[0]+w,max_loc[1]+h),255,3)
+#
+# # 创建跟踪ROI区域 窗口尺寸及初化位置
+# r, c = max_loc[1], max_loc[0]
+# roi = frame[r:r + h, c:c + w]
+# track_window = (c, r, w, h)
+#
+# cv2.imshow('model', model)
+# cv2.imshow('roi', frame)
+# cv2.waitKey(0)
+#
+# hsv_roi = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+# mask = cv2.inRange(hsv_roi, np.array((0., 60., 32.)), np.array((180., 255., 255.)))
+# roi_hist = cv2.calcHist([hsv_roi], [0], mask, [180], [0, 180])
+# cv2.normalize(roi_hist, roi_hist, 0, 255, cv2.NORM_MINMAX)
+#
+# # 设置终止条件 迭代10次或至少移动1个pixel
+# term_crit = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1 )
+#
+# while 1:
+#     ret, frame= cap.read()
+#
+#     if ret:
+#         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+#         dst = cv2.calcBackProject([hsv], [0], roi_hist, [0,180], 1)
+#
+#         # ------------应用meanshift 获取新的位置-----------[
+#         ret, track_window = cv2.meanShift(dst, track_window, term_crit)
+#
+#         # draw it on image
+#         x, y, w, h = track_window
+#         img2 = cv2.rectangle(frame, (x, y), (x + w, y + h), 255, 2)
+#         cv2.imshow('img2', img2)
+#         # ]-----------------------
+#
+#         # # ------------应用Camshift 获取新的位置-----------[
+#         # ret, track_window = cv2.CamShift(dst, track_window, term_crit)
+#         #
+#         # # draw it on image
+#         # pts = cv2.boxPoints(ret)
+#         # pts = np.int0(pts)  # 舍去小数点
+#         # img2 = cv2.polylines(frame, [pts], True, 255, 2)
+#         # cv2.imshow('img2', img2)
+#         # # ]-----------------------
+#
+#
+#         k = cv2.waitKey(50) & 0xff
+#         if k==27:
+#             break
+#     else:
+#         break
+# cv2.destroyAllWindows()
+# cap.release()
+pass  # -------Lucas-Kanade 光流--------- 2019-7-9 10:49:18
+# # 约束方程 fx u + fy v + ft = 0
+# # 传入前一帧图像和其中的点，以及下一帧图像
+# # cv2.calcOpticalFlowPyrLK(prevImg, nextImg, prevPts, nextPts)   # 根据光流方程获取前一帧与当前帧的光流参数
+# # cv2.goodFeaturesToTrack()   # 确定要跟踪的点
+# # 首先在视频的第一帧图像中检测一些 Shi-Tomasi 角点，然后我们使用 LucasKanade 算法迭代跟踪这些角点
+#
+# cap = cv2.VideoCapture('meanshift_video.mp4')
+#
+# # ShiTomasi 角点检测参数  cv2.goodFeaturesToTrack()
+# feature_params = dict(maxCorners=100,
+#                       qualityLevel=0.35,
+#                       minDistance=7,
+#                       blockSize=7)
+# # lucak kanade 光流参数配置
+# # maxLevel 为使用金字塔层数
+# lk_params = dict(winSize=(15, 15),
+#                  maxLevel=2,
+#                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+# # Create some random colors
+# color = np.random.randint(0, 255, (100, 3))  # 100行3列， 从0~255随机
+#
+# # 获取图像第一帧 并得到角点
+# ret, old_frame = cap.read()
+# old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
+# p0 = cv2.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
+#
+# # 创建一个mask用于绘图  np.zeros_like(src) 返回同样尺寸及数据格式的零矩阵
+# mask = np.zeros_like(old_frame)
+# Count = 0
+# while 1:
+#     ret, frame = cap.read()
+#     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#     Count = Count +1
+#
+#     # 调试用， 每隔10帧重新寻找角点 容易丢失初始跟踪目标
+#     res = Count%10
+#     if res == 0:
+#         old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
+#         p0 = cv2.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
+#
+#     # calculate optical flow 能够获取点的新位置
+#     # st 为返回状态， 1 表示在新图中找到这个点， 0 表示未找到
+#     p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray,frame_gray,p0,None,**lk_params)
+#
+#     # 筛选出匹配到的点
+#     good_new = p1[st==1]
+#     good_old = p0[st==1]
+#
+#     # 绘制跟踪轨迹
+#     for i, (new,old) in enumerate(zip(good_new,good_old)):
+#         a,b = new.ravel()
+#         c,d = old.ravel()
+#         mask = cv2.line(mask,(a,b), (c,d), color[i].tolist(),2)  # .tolist 将数组转换成list
+#         frame = cv2.circle(frame, (a,b), 5, color[i].tolist(), -1)
+#     img = cv2.add(frame, mask)
+#
+#     cv2.imshow('frame', img)
+#     k = cv2.waitKey(60) & 0xff
+#     if k == 27:
+#         break
+#
+#     # 更新前一帧图片与特征点
+#     old_gray = frame_gray.copy()
+#     p0 = good_new.reshape(-1,1,2)
+#
+# cv2.destroyAllWindows()
+# cap.release()
+pass  # -------稠密 光流--------- 2019-7-9 14:30:35
+# # 通过监测亮度变化来检测运动物体
+# # cv2.calcOpticalFlowFarneback(prev, next, flow, pyr_scale, levels,
+# #                              winsize, iterations, poly_n, poly_sigma, flags)
+# # 参数说明 ：prev 前一帧灰度图， next 当前帧灰度图， flow 光流（要计算，是None)
+# # pyr_scale 金字塔倍率， 0.5为经典金字塔，next 为 prvs 面积的 1/4
+# # poly_n 计算像素点多项式时的相邻像素数量，通常 poly_n = 5 或 7
+# # poly_sigma 高斯标准差，用于平滑导数以便泰勒展开，
+# # 建议值 poly_n = 5 时 poly_sigma=1.1，  poly_n = 7 时 poly_sigma=1.5
+# # flag 可选 0 或 1,0 计算快，1 慢但准确
+#
+# cap = cv2.VideoCapture('meanshift_video.mp4')
+#
+# ret, frame1 = cap.read()
+# prvs = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+# hsv = np.zeros_like(frame1)
+# hsv[..., 1] = 255  # 将每个像素的饱和度设置为255 等价于 hsv[:,:,1]=255
+#
+# while 1:
+#     ret, frame2 = cap.read()
+#     next = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+#
+#     flow = cv2.calcOpticalFlowFarneback(prvs, next, None, 0.5, 3, 15, 3, 5, 1.1, 0)
+#
+#     # cv2.cartToPolar Calculates the magnitude and angle of 2D vectors.
+#     mag, ang = cv2.cartToPolar(flow[...,0], flow[...,1])
+#     hsv[...,0] = ang*180/np.pi/2
+#     hsv[...,2] = cv2.normalize(mag, None,0, 255, cv2.NORM_MINMAX) # 归一化，分布到0~255
+#     bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+#
+#     cv2.imshow('frame2', bgr)
+#     cv2.imshow('frame orig', frame2)
+#     k = cv2.waitKey(600)&0xff
+#     if k == 27:
+#         break
+#     elif k == ord('s'):
+#         cv2.imwrite('opticalfb.png', frame2)
+#         cv2.imwrite('opticalhsv.png', bgr)
+#     prvs = next
+#
+# cap.release()
+# cv2.destroyAllWindows()
+pass  # -------背景减除MOG2--------- 2019-7-9 17:10:22
+# MOG2算法，也是高斯混合模型分离算法，是MOG的改进算法。
+# 为每个像素选择适当数量的高斯分布，它可以更好地适应不同场景的照明变化等。
+#
+# cap = cv2.VideoCapture('meanshift_video.mp4')
+# # fgbg = cv2.createBackgroundSubtractorMOG2()
+#
+# while 1:
+#     ret, frame = cap.read()
+#     fgmask = fgbg.apply(frame)
+#     cv2.imshow('fgmask',fgmask)
+#     cv2.imshow('frame',frame)
+#     k = cv2.waitKey(30) & 0xff
+#     if k == 27:
+#         break
+#
+# cap.release()
+# cv2.destroyAllWindows()
+pass  # -------背景减除 KNN--------- 2019-7-9 17:43:37
+# # # KNN算法，即K-nearest neigbours - based Background/Foreground Segmentation  Algorithm。2006年提出
+#
+# camera = cv2.VideoCapture('meanshift_video.mp4')
+# history = 20    # 训练帧数
+#
+# bs = cv2.createBackgroundSubtractorKNN(detectShadows=True)  # 背景减除器，设置阴影检测
+# bs.setHistory(history)
+#
+# frames = 0
+#
+# while True:
+#     res, frame = camera.read()
+#
+#     if not res:
+#         print("Don't get frame!")
+#         break
+#
+#     fg_mask = bs.apply(frame)   # 获取 foreground mask
+#
+#     if frames < history:
+#         frames += 1
+#         continue
+#
+#     # 对原始帧进行膨胀去噪
+#     ret, th = cv2.threshold(fg_mask.copy(), 240, 255, cv2.THRESH_BINARY)  # ret 二值化阀值
+#     th = cv2.erode(th, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)), iterations=2)
+#     dilated = cv2.dilate(th, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 3)), iterations=2)
+#     # 获取所有检测框 RETR_EXTERNAL只保留最外层， CHAIN_APPROX_SIMPLE 轮廓直线只保留端点
+#     contours, hierarchy  = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#
+#     for c in contours:
+#         # 获取轮廓外接矩形框边界坐标
+#         x, y, w, h = cv2.boundingRect(c)
+#         # 计算矩形框的面积
+#         area = cv2.contourArea(c)
+#         if 500 < area < 3000:
+#             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+#
+#     cv2.imshow("detection", frame)
+#     cv2.imshow("back", dilated)
+#     if cv2.waitKey(110) & 0xff == 27:
+#         break
+# camera.release()
+pass  # -------摄像机标定和 3D 重构---------2019-7-9 21:6:47
+
+# 阈值
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+
+# 棋盘模板规格 注：w,h 分别为横向、纵向角点数目
+w = 6  # rows
+h = 9   # cols
+# 设置检测物理坐标， like (0,0,0), (1,0,0), (2,0,0)..(8,5,0)
+objp = np.zeros((w*h, 3), np.float32)
+objp[:,:2] = np.mgrid[0:w, 0:h].T.reshape(-1,2)
+
+# 储存棋盘格角点的世界坐标和图像坐标对
+objpoints = []  # 在世界坐标系中的三维点
+imgpoints = []  # 在图像平面的二维点
+
+images = glob.glob('*chess.jpg')  # 需要import glob  获取所有*chess.jpg文件名字 字符串形式
+
+for fname in images:
+    img = cv2.imread(fname)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # 寻找棋盘角点
+    ret, corners = cv2.findChessboardCorners(gray,(w,h),None)
+
+    # 如果找到足够点对，将其存储起来
+    if ret:
+        objpoints.append(objp)   # 记录世界坐标
+        # 寻找亚像素角点
+        corners2 = cv2.cornerSubPix(gray, corners,(11,11),(-1,-1), criteria)
+        imgpoints.append(corners2)  #  记录棋盘图像坐标
+
+        # 绘图显示棋盘坐标
+        img = cv2.drawChessboardCorners(img, (w, h), corners2, ret)
+        cv2.imshow('img', img)
+        cv2.waitKey(0)
 
 
+
+    # 标定
+    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+    # 去畸变
+    img2 = cv2.imread('chess.JPG')
+    h,  w = img2.shape[:2]
+    newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),0,(w,h)) # 自由比例参数
+    dst = cv2.undistort(img2, mtx, dist, None, newcameramtx)
+    # 根据前面ROI区域裁剪图片
+    x,y,w,h = roi
+    dst = dst[y:y+h, x:x+w]
+    cv2.imshow('calibresult.png',dst)
+    cv2.waitKey(0)
+
+    # 反投影误差
+    total_error = 0
+    for i in range(len(objpoints)):
+        imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
+        error = cv2.norm(imgpoints[i],imgpoints2, cv2.NORM_L2)/len(imgpoints2)
+        total_error += error
+    print("total error: ", total_error/len(objpoints))
