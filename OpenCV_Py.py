@@ -1742,14 +1742,14 @@ pass  # -------背景减除 KNN--------- 2019-7-9 17:43:37
 #     if cv2.waitKey(110) & 0xff == 27:
 #         break
 # camera.release()
-pass  # -------摄像机标定和 3D 重构---------2019-7-9 21:6:47
+pass  # -------摄像机标定，畸变校正，反向投影误差---------2019-7-9 21:6:47
 
 # 阈值
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 # 棋盘模板规格 注：w,h 分别为横向、纵向角点数目
-w = 6  # rows
-h = 9   # cols
+w = 6  # cols
+h = 9   # rows
 # 设置检测物理坐标， like (0,0,0), (1,0,0), (2,0,0)..(8,5,0)
 objp = np.zeros((w*h, 3), np.float32)
 objp[:,:2] = np.mgrid[0:w, 0:h].T.reshape(-1,2)
@@ -1758,7 +1758,7 @@ objp[:,:2] = np.mgrid[0:w, 0:h].T.reshape(-1,2)
 objpoints = []  # 在世界坐标系中的三维点
 imgpoints = []  # 在图像平面的二维点
 
-images = glob.glob('*chess.jpg')  # 需要import glob  获取所有*chess.jpg文件名字 字符串形式
+images = glob.glob('*chess_dist.jpg')  # 需要import glob  获取所有*chess.jpg文件名字 字符串形式
 
 for fname in images:
     img = cv2.imread(fname)
@@ -1776,29 +1776,89 @@ for fname in images:
 
         # 绘图显示棋盘坐标
         img = cv2.drawChessboardCorners(img, (w, h), corners2, ret)
+        cv2.namedWindow('img', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
         cv2.imshow('img', img)
         cv2.waitKey(0)
 
-
-
-    # 标定
+    # 标定 返回摄像机矩阵mtx，畸变系数dist，旋转 rvecs 和变换向量tvecs等。
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
     # 去畸变
-    img2 = cv2.imread('chess.JPG')
+    img2 = cv2.imread('chess_dist.JPG')
     h,  w = img2.shape[:2]
-    newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),0,(w,h)) # 自由比例参数
+
+    # alpha=1 返回所有像素.
+    newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h)) # 自由比例参数
+
+    #---------使用cv2.undistort()　去畸变
     dst = cv2.undistort(img2, mtx, dist, None, newcameramtx)
+
+    # # # ---------使用cv2.remapping()　去畸变
+    # # # 先找到从畸变图像到非畸变图像的映射方程。再使用重映射方程
+    # mapx, mapy = cv2.initUndistortRectifyMap(mtx, dist, None, newcameramtx, (w, h), 5)
+    # dst = cv2.remap(img2, mapx, mapy, cv2.INTER_LINEAR)
+
     # 根据前面ROI区域裁剪图片
     x,y,w,h = roi
     dst = dst[y:y+h, x:x+w]
     cv2.imshow('calibresult.png',dst)
+    cv2.imwrite('chess001.jpg', dst)
     cv2.waitKey(0)
 
     # 反投影误差
     total_error = 0
     for i in range(len(objpoints)):
+        # cv2.projectPoints 将对象点转换到图像点
         imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
+        # 计算图像与角点检测算法的绝对差
         error = cv2.norm(imgpoints[i],imgpoints2, cv2.NORM_L2)/len(imgpoints2)
         total_error += error
-    print("total error: ", total_error/len(objpoints))
+    print("total error: ", total_error/len(objpoints))  #　计算所有标定图像的误差平均值
+pass  # -------姿势估计--------- 2019-7-10 20:39:6
+
+def draw(img, corners, imgpts):
+    """
+    绘制3D 坐标轴
+    :param img:  input src
+    :param corners: reference point XYZ轴划线起点
+    :param imgpts:  XYZ轴划线端点
+    :return: 返回画好线的图
+    """
+    corner = tuple(corners[24].ravel())
+    img = cv2.line(img, corner, tuple(imgpts[0].ravel()), (255, 0,0),5)
+    img = cv2.line(img, corner, tuple(imgpts[1].ravel()), (0, 255, 0), 5)
+    img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0, 0, 255), 5)
+    return img
+
+
+criteria = (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+w = 6  # cols 列
+h = 9   # rows
+# 设置检测物理坐标， like (0,0,0), (1,0,0), (2,0,0)..(8,5,0)
+objp = np.zeros((w*h, 3), np.float32)
+objp[:,:2] = np.mgrid[0:w, 0:h].T.reshape(-1,2)
+
+# 3D 空间中的坐标轴点是为了绘制坐标轴  以选择的轮廓点为起点，下图3个点为三个轴端点 单位为黑白块的长和宽
+axis = np.float32([[3,4,0],[0,7,0],[0,4,-3]]).reshape(-1,3)  # 横向为x坐标
+
+for fname in glob.glob('chess_dist.jpg'):
+    img = cv2.imread(fname)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret, corners = cv2.findChessboardCorners(gray,(w,h),None)
+    # 如果找到了就用亚像素方法找到更精确的角点
+    if ret:
+        corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
+        #　计算旋转和变换
+        ret, rvecs, tvecs, _ = cv2.solvePnPRansac(objp,corners2,mtx, dist)
+
+        # 将3D空间点坐标映射到图像坐标中
+        imgpts, jac = cv2.projectPoints(axis,rvecs,tvecs,mtx,dist)
+
+        # 绘制坐标轴
+        img = draw(img, corners2, imgpts)
+        cv2.imshow('img', img)
+        k = cv2.waitKey(0) &0xff
+        if k == 's':
+            cv2.imwrite(fname[:6]+'.png',img)
+
+cv2.destroyAllWindows()
