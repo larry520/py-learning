@@ -1,4 +1,4 @@
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 # 代码风格：
 """
@@ -25,11 +25,11 @@
 不会有太多功能性代码，而是根据执行的模式调用不同的函数。
 """
 
-import  numpy as np
+import numpy as np
 import copy
 import os
-ls = os.linesep
 
+ls = os.linesep
 
 # print('-' * 20, 'Hello World!', '-' * 20)
 # print(1<<2)
@@ -47,7 +47,7 @@ pass  # ---------切片对象
 pass
 # repr(obj) 或 `obj` 返回一个对象的字符串表示 repr() 与 ''功能完全一样
 # str(obj) 返回对象适合可读性好的字符串表示
-pass # ---------复数 i 用 j 或 J 来表示
+pass  # ---------复数 i 用 j 或 J 来表示
 # # num.real 该复数的实部  浮点类型
 # # num num.imag  该复数的虚部  浮点类型
 # # num.conjugate() 返回该复数的共轭复数
@@ -55,24 +55,17 @@ pass # ---------复数 i 用 j 或 J 来表示
 # b = 3
 # c = a +b
 # print(c, c.real, c.imag, c.conjugate())
-pass # ---------深拷贝copy.deepcopy()与浅拷贝.copy [:]
-alist = [1,  ['a', 'b']]
-blist = alist    # 引用,指向同一个list
-clist = alist[:]   # 浅拷贝
+pass  # ---------深拷贝copy.deepcopy()与浅拷贝.copy [:]
+alist = [1, ['a', 'b']]
+blist = alist  # 引用,指向同一个list
+clist = alist[:]  # 浅拷贝
 # 浅拷贝  作用同 blist = alist.copy()
 # 对于列表中的元素为容器情形只拷贝容器地址
-dlist = copy.deepcopy(alist)   # 深拷贝
-print(alist,blist,clist,dlist)
+dlist = copy.deepcopy(alist)  # 深拷贝
+print(alist, blist, clist, dlist)
 alist[0] = 'wa'
 alist[1][1] = 'c'
-print(alist,blist,clist,dlist)
-
-
-
-
-
-
-
+print(alist, blist, clist, dlist)
 
 if __name__ == '__main__':
     print('test module')

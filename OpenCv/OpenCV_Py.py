@@ -754,6 +754,7 @@ pass  # ---------轮廓--------   2019-6-16 15:57:29
 # 3.在 OpenCV 中，查找轮廓就像在黑色背景中找白色物体。要找的物体应该是白色而背景应该是黑色。
 # def drawContours(image, contours, contourIdx, color, thickness=None, lineType=None, hierarchy=None,
 # maxLevel=None, offset=None): # real signature unknown; restored from __doc__
+#
 # im = cv2.imread('zuiantu.jpg', 1)
 # # im = cv2.imread('hb.jpg')
 # img = im.copy()
