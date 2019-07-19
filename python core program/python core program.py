@@ -56,16 +56,106 @@ pass  # ---------复数 i 用 j 或 J 来表示
 # c = a +b
 # print(c, c.real, c.imag, c.conjugate())
 pass  # ---------深拷贝copy.deepcopy()与浅拷贝.copy [:]
-alist = [1, ['a', 'b']]
-blist = alist  # 引用,指向同一个list
-clist = alist[:]  # 浅拷贝
-# 浅拷贝  作用同 blist = alist.copy()
-# 对于列表中的元素为容器情形只拷贝容器地址
-dlist = copy.deepcopy(alist)  # 深拷贝
-print(alist, blist, clist, dlist)
-alist[0] = 'wa'
-alist[1][1] = 'c'
-print(alist, blist, clist, dlist)
+# alist = [1, ['a', 'b']]
+# blist = alist  # 引用,指向同一个list
+# clist = alist[:]  # 浅拷贝
+# # 浅拷贝  作用同 blist = alist.copy()
+# # 对于列表中的元素为容器情形只拷贝容器地址
+# dlist = copy.deepcopy(alist)  # 深拷贝
+# print(alist, blist, clist, dlist)
+# alist[0] = 'wa'
+# alist[1][1] = 'c'
+# print(alist, blist, clist, dlist)
+pass  # ----------字典 dict 应用 2019-7-15 16:2:0
+#
+# d = dict.fromkeys(['a1', 'a3'], 10)
+# print(d)
+# d = dict.fromkeys(['a1', 'a2', 'a3'], [1, 2, 3])
+# print(d)
+#
+pass  # ----------&,|,and, or-----------2019-7-17 10:49:26
+# &,  |：
+# # 1&2，2在二进制里面是10,1在二进制中是01，那么01与运算10得到是0
+# 1 & 2         # 输出为 0，
+# 1 | 2          # 输出为3
+#
+# and, or:
+#  # 判断变量是否为0， 是0则为False，非0判断为True，
+#  # and中含0，返回0； 均为非0时，返回后一个值，
+# 2 and 0   # 返回0
+# 2 and 1   # 返回1
+# 1 and 2   # 返回2
+#
+# # or中， 至少有一个非0时，返回第一个非0,
+# 2 or 0   # 返回2
+# 2 or 1   # 返回2
+# 0 or 1   # 返回1
+pass  # ----------异常处理---------------2019-7-19 9:32:3
+# """伪代码说明log作用，异常或成功信息记录"""
+# import 3rd_party_module
+# log = open('logfile.txt', 'w')
+# try:
+#     3rd_party_module.function()
+# except:
+#     log.write("*** caught exception in module\n")
+# else:
+#     log.write("*** no exceptions caught\n")
+# log.close()
+#
+# def safe_float(obj):
+#     try:
+#         retval = float(obj)
+#     # except BaseException:   # 所有异常都屏蔽了， 可能会错过关注的异常
+#     except (TypeError, ValueError):  # 处理特定的异常
+#         print('warning: argument must be a number or numeric string')
+#         retval = None
+#     return retval
+pass  # ----------多线程---------------2019-7-19 13:51:28
+#Thread对象函数 描述
+# start()  开始线程的执行
+# run()  定义线程的功能的函数（一般会被子类重写）
+# join(timeout=None) 程序挂起，直到线程结束；如果给了 timeout，则最多阻塞 timeout 秒
+# getName()  返回线程的名字
+# setName(name)  设置线程的名字
+# isAlive()  布尔标志，表示这个线程是否还在运行中
+# isDaemon()  返回线程的 daemon 标志
+
+import threading
+import datetime
+import time
+
+
+def print_time(therading, state=''):
+    print(therading, state, 'at:', datetime.datetime.now())
+
+
+def loop0():
+    print_time("loop0", 'start')
+    time.sleep(3)
+    print_time("loop0", 'end')
+
+
+def loop1():
+    print_time('loop1', 'start')
+    time.sleep(6)
+    print_time('loop1', 'end')
+
+try:
+    thread1 = threading.Thread(target=loop0)
+    thread2 = threading.Thread(target=loop1)
+    threads = [thread1, thread2]
+    print_time('Main thread start')
+    for t in threads:
+        t.start()      # 启动线程
+    for t in threads:
+        t.join()       # 等待线程结束
+    print_time('all thread done')
+except:
+    print("Error: 无法启动线程")
+
+
+
+
 
 if __name__ == '__main__':
-    print('test module')
+    pass
