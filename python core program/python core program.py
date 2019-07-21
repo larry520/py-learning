@@ -101,6 +101,11 @@ pass  # ----------异常处理---------------2019-7-19 9:32:3
 # else:
 #     log.write("*** no exceptions caught\n")
 # log.close()
+# # ---------断言表达式
+# try:
+#     assert 1 == 0
+# except AssertionError:
+#     print('assert error')
 #
 # def safe_float(obj):
 #     try:
@@ -119,39 +124,48 @@ pass  # ----------多线程---------------2019-7-19 13:51:28
 # setName(name)  设置线程的名字
 # isAlive()  布尔标志，表示这个线程是否还在运行中
 # isDaemon()  返回线程的 daemon 标志
+#
+# import threading
+# import datetime
+# import time
+#
+#
+# def print_time(therading, state=''):
+#     print(therading, state, 'at:', datetime.datetime.now())
+#
+#
+# def loop0():
+#     print_time("loop0", 'start')
+#     time.sleep(3)
+#     print_time("loop0", 'end')
+#
+#
+# def loop1():
+#     print_time('loop1', 'start')
+#     time.sleep(6)
+#     print_time('loop1', 'end')
+#
+#
+# try:
+#     thread1 = threading.Thread(target=loop0)
+#     thread2 = threading.Thread(target=loop1)
+#     threads = [thread1, thread2]
+#     print_time('Main thread start')
+#     for t in threads:
+#         t.start()      # 启动线程
+#         time.sleep(0.001)
+#         print(threading.Thread.getName(t))   # thread name 并不是thread1 默认为 Thread-1
+#     for t in threads:
+#         t.join()       # 等待线程结束 join(n)表示阻塞n秒,n= 0时等待所有线程结束
+#     print_time('all thread done')
+# except ValueError:
+#     print("Error: 无法启动线程")
+pass  # ----------    ---------------
 
-import threading
-import datetime
-import time
 
 
-def print_time(therading, state=''):
-    print(therading, state, 'at:', datetime.datetime.now())
 
 
-def loop0():
-    print_time("loop0", 'start')
-    time.sleep(3)
-    print_time("loop0", 'end')
-
-
-def loop1():
-    print_time('loop1', 'start')
-    time.sleep(6)
-    print_time('loop1', 'end')
-
-try:
-    thread1 = threading.Thread(target=loop0)
-    thread2 = threading.Thread(target=loop1)
-    threads = [thread1, thread2]
-    print_time('Main thread start')
-    for t in threads:
-        t.start()      # 启动线程
-    for t in threads:
-        t.join()       # 等待线程结束
-    print_time('all thread done')
-except:
-    print("Error: 无法启动线程")
 
 
 
