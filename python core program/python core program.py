@@ -27,6 +27,7 @@
 
 import numpy as np
 import copy
+from functools import wraps
 import os
 
 ls = os.linesep
@@ -116,14 +117,120 @@ pass  # ----------异常处理---------------2019-7-19 9:32:3
 #         retval = None
 #     return retval
 pass  # ----------多线程---------------2019-7-19 13:51:28
-#Thread对象函数 描述
-# start()  开始线程的执行
-# run()  定义线程的功能的函数（一般会被子类重写）
-# join(timeout=None) 程序挂起，直到线程结束；如果给了 timeout，则最多阻塞 timeout 秒
-# getName()  返回线程的名字
-# setName(name)  设置线程的名字
-# isAlive()  布尔标志，表示这个线程是否还在运行中
-# isDaemon()  返回线程的 daemon 标志
+# #Thread对象函数 描述
+# # start()  开始线程的执行
+# # run()  定义线程的功能的函数（一般会被子类重写）
+# # join(timeout=None) 程序挂起，直到线程结束；如果给了 timeout，则最多阻塞 timeout 秒
+# # getName()  返回线程的名字
+# # setName(name)  设置线程的名字
+# # isAlive()  布尔标志，表示这个线程是否还在运行中
+# # isDaemon()  返回线程的 daemon 标志
+#
+# import threading
+# import datetime
+# import time
+#
+#
+# def print_time(therading, state=''):
+#     print(therading, state, 'at:', datetime.datetime.now())
+#
+#
+# def loop0():
+#     print_time("loop0", 'start')
+#     time.sleep(3)
+#     print_time("loop0", 'end')
+#
+#
+# def loop1():
+#     print_time('loop1', 'start')
+#     time.sleep(6)
+#     print_time('loop1', 'end')
+#
+# try:
+#     thread1 = threading.Thread(target=loop0)
+#     thread2 = threading.Thread(target=loop1)
+#     threads = [thread1, thread2]
+#     print_time('Main thread start')
+#     for t in threads:
+#         t.start()      # 启动线程
+#     for t in threads:
+#         t.join()       # 等待线程结束
+#     print_time('all thread done')
+# except:
+#     print("Error: 无法启动线程")
+pass  # ----------函数式编程 装饰器---------------2019-7-22 16:4:46
+#
+#
+# def a_new_decorator(a_func):
+#     #  以下文本内容可通过 foo.__doc__ 引用
+#     """
+#     example for decorator
+#     :param a_func:  a function
+#     :return:
+#     """
+#     @wraps(a_func)   # 使得装饰器内的函数的名字与文档得以保留
+#     def wapTheFunction():
+#         print('do something before executing a_func()')
+#         a_func()
+#         print('do something after executing a_func()')
+#     return wapTheFunction
+#
+#
+# # 装饰器的作用等价于 a_function_requiring_decoration = a_new_decorator(a_function_requiring_decoration)
+# @a_new_decorator
+# def a_function_requiring_decoration():
+#     print('需要用装饰器做一些处理的函数')
+#
+#
+# a_function_requiring_decoration()
+pass  # ---------装饰器的典型应用-----Logging 日志记录  2019-7-22 16:58:50
+#
+#
+# def logit(logfile='out.log'):
+#     def logging_decorator(func):
+#         @wraps(func)
+#         def wrapped_function(*args, **kwargs):
+#             log_string = func.__name__ + " was called"
+#             print(log_string)
+#             # 打开logfile，并写入内容
+#             with open(logfile, 'a') as opened_file:
+#                 # 现在将日志打到指定的logfile
+#                 opened_file.write(log_string + '\n')
+#             return func(*args, **kwargs)
+#
+#         return wrapped_function
+#
+#     return logging_decorator
+#
+#
+# @logit()
+# def myfunc1():
+#     pass
+#
+#
+# myfunc1()
+# # Output: myfunc1 was called
+# # 现在一个叫做 out.log 的文件出现了，里面的内容就是上面的字符串
+#
+#
+# @logit(logfile='func2.log')
+# def myfunc2():
+#     pass
+#
+#
+# myfunc2()
+# # Output: myfunc2 was called
+# # 现在一个叫做 func2.log 的文件出现了，里面的内容就是上面的字符串
+pass  # ----------装饰器的典型应用----授权  2019-7-22 16:58:50
+# """对某些应用执行前做权限确认"""
+# def requires_auth(f):
+#     @wraps(f)
+#     def decorated(*args, **kwargs):
+#         auth = request.authorization
+#         if not auth or not check_auth(auth.username, auth.password):
+#             authenticate()
+#         return f(*args, **kwargs)
+#     return decorated
 #
 # import threading
 # import datetime
@@ -161,10 +268,6 @@ pass  # ----------多线程---------------2019-7-19 13:51:28
 # except ValueError:
 #     print("Error: 无法启动线程")
 pass  # ----------    ---------------
-
-
-
-
 
 
 
