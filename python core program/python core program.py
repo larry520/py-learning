@@ -126,6 +126,7 @@ pass  # ----------多线程---------------2019-7-19 13:51:28
 # # isAlive()  布尔标志，表示这个线程是否还在运行中
 # # isDaemon()  返回线程的 daemon 标志
 #
+
 # import threading
 # import datetime
 # import time
@@ -146,6 +147,7 @@ pass  # ----------多线程---------------2019-7-19 13:51:28
 #     time.sleep(6)
 #     print_time('loop1', 'end')
 #
+#
 # try:
 #     thread1 = threading.Thread(target=loop0)
 #     thread2 = threading.Thread(target=loop1)
@@ -153,10 +155,12 @@ pass  # ----------多线程---------------2019-7-19 13:51:28
 #     print_time('Main thread start')
 #     for t in threads:
 #         t.start()      # 启动线程
+#         time.sleep(0.001)
+#         print(threading.Thread.getName(t))   # thread name 并不是thread1 默认为 Thread-1
 #     for t in threads:
-#         t.join()       # 等待线程结束
+#         t.join()       # 等待线程结束 join(n)表示阻塞n秒,n= 0时等待所有线程结束
 #     print_time('all thread done')
-# except:
+# except ValueError:
 #     print("Error: 无法启动线程")
 pass  # ----------函数式编程 装饰器---------------2019-7-22 16:4:46
 #
@@ -231,46 +235,20 @@ pass  # ----------装饰器的典型应用----授权  2019-7-22 16:58:50
 #             authenticate()
 #         return f(*args, **kwargs)
 #     return decorated
-#
-# import threading
-# import datetime
-# import time
-#
-#
-# def print_time(therading, state=''):
-#     print(therading, state, 'at:', datetime.datetime.now())
-#
-#
-# def loop0():
-#     print_time("loop0", 'start')
-#     time.sleep(3)
-#     print_time("loop0", 'end')
-#
-#
-# def loop1():
-#     print_time('loop1', 'start')
-#     time.sleep(6)
-#     print_time('loop1', 'end')
-#
-#
-# try:
-#     thread1 = threading.Thread(target=loop0)
-#     thread2 = threading.Thread(target=loop1)
-#     threads = [thread1, thread2]
-#     print_time('Main thread start')
-#     for t in threads:
-#         t.start()      # 启动线程
-#         time.sleep(0.001)
-#         print(threading.Thread.getName(t))   # thread name 并不是thread1 默认为 Thread-1
-#     for t in threads:
-#         t.join()       # 等待线程结束 join(n)表示阻塞n秒,n= 0时等待所有线程结束
-#     print_time('all thread done')
-# except ValueError:
-#     print("Error: 无法启动线程")
-pass  # ----------    ---------------
-
-
-
+pass  # ----------map,filter 内置函数-----------  2019-7-23 11:5:56
+# print(list(filter(lambda n: n % 2 == 1, [1, 2, 3, 4, 5])))  # 筛选出条件为True的元素构成新列表
+# print(list(n for n in [1, 2, 3, 4, 5] if n % 2))   # == 1 可缺省，True
+# print(list(map(lambda x: x ** 2, [1, 2, 3, 4])))  # 对第一个元素作运算
+# print(list(n ** 2 for n in [1, 2, 3, 4]))
+pass  # ----------模块----------  2019-7-23 17:18:13
+# print(sys.path)  # 系统搜索路径
+# # 可通过sys.path.append() 添加，只在程序运行期间有效果
+# sys.path.append('E:\\pydata\\HCNA-AI\\py-learning.git\\trunk\\OpenCv')
+# print(sys.path)
+pass  # ----------正则表达式----------2019-7-26 17:51:46
+import re
+print(re.match('www', 'www.runoob.com').span())  # 在起始位置匹配
+print(re.match('com', 'www.runoob.com'))         # 不在起始位置匹配
 
 
 
