@@ -28,6 +28,7 @@
 import numpy as np
 import copy
 from functools import wraps
+import re
 import os
 
 ls = os.linesep
@@ -246,9 +247,28 @@ pass  # ----------模块----------  2019-7-23 17:18:13
 # sys.path.append('E:\\pydata\\HCNA-AI\\py-learning.git\\trunk\\OpenCv')
 # print(sys.path)
 pass  # ----------正则表达式----------2019-7-26 17:51:46
-import re
-print(re.match('www', 'www.runoob.com').span())  # 在起始位置匹配
-print(re.match('com', 'www.runoob.com'))         # 不在起始位置匹配
+# re.match只匹配字符串的开始，如果字符串开始不符合正则表达式，则匹配失败，函数返回None；
+# re.search匹配整个字符串，直到找到一个匹配。
+# re.sub(pattern, repl, string, count=0, flags=0)  检索并替换
+# https://www.runoob.com/python3/python3-reg-expressions.html
+#
+# line = "Cats are smarter than dogs"
+#
+# matchObj = re.match(r'dogs', line, re.M | re.I)
+# if matchObj:
+#     print("match --> matchObj.group() : ", matchObj.group())
+# else:
+#     print("No match!!")
+#
+# matchObj = re.search(r'dogs', line, re.M | re.I)
+# if matchObj:
+#     print("search --> matchObj.group() : ", matchObj.group())
+# else:
+#     print("No match!!")
+pass  # ----------贪心匹配----------2019-7-29 17:51:5
+patt = '.+?(\d+-\d+-\d+)'  #  默认贪心匹配  ? 表示只匹配尽量少的字符
+data = '1171590364-6-8'
+print(re.match(patt, data).group(1))
 
 
 
