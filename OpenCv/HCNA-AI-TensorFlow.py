@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# tensorBoard --logdir E:\GitHub_repo\py-learning\OpenCv\log\mnist_with_summaries --host=localhost
 
 import tensorflow as tf
 import numpy as np

@@ -127,7 +127,6 @@ pass  # ----------多线程---------------2019-7-19 13:51:28
 # # isAlive()  布尔标志，表示这个线程是否还在运行中
 # # isDaemon()  返回线程的 daemon 标志
 #
-
 # import threading
 # import datetime
 # import time
@@ -147,7 +146,6 @@ pass  # ----------多线程---------------2019-7-19 13:51:28
 #     print_time('loop1', 'start')
 #     time.sleep(6)
 #     print_time('loop1', 'end')
-#
 #
 # try:
 #     thread1 = threading.Thread(target=loop0)
@@ -246,6 +244,43 @@ pass  # ----------模块----------  2019-7-23 17:18:13
 # # 可通过sys.path.append() 添加，只在程序运行期间有效果
 # sys.path.append('E:\\pydata\\HCNA-AI\\py-learning.git\\trunk\\OpenCv')
 # print(sys.path)
+pass  # ----------多重继承---------------2019-7-24 16:36:28
+# # 多重继承与单继承类似，不同的是圆括号中父类的顺序，若是父类中有相同的方法名，
+# # 而在子类使用时未指定， python从左至右搜索 即方法在子类中未找到时，
+# # 从左到右查找父类中是否包含方法。
+# # __private_attrs：两个下划线开头，声明该属性为私有属性
+# # __private_method：两个下划线开头，声明该方法为私有方法
+#
+# class Parent:
+#     def myMethod(self):
+#         print('调用父类方法- father')
+#
+#     def parentMethod(self):
+#         print('方法 parentMethod')
+#
+#
+# class Mother:
+#     def myMethod(self):
+#         print('调用父类方法- mother')
+#
+#     def motherMethod(self):
+#         print('方法 motherMethod')
+#
+#
+# class Child(Parent, Mother):
+#     def myMethod(self):
+#         print('调用子类方法')
+#
+#     def childmethod(self):
+#         print('方法 childmethod')
+#
+#
+# c = Child()   # 子类实例
+# c.myMethod()   # 子类重写父类方法
+# super(Child, c).myMethod()  # 用子类对象调用父类方法 从左到右第一个父类
+# c.motherMethod()
+# c.parentMethod()
+# c.childmethod()
 pass  # ----------正则表达式----------2019-7-26 17:51:46
 # re.match只匹配字符串的开始，如果字符串开始不符合正则表达式，则匹配失败，函数返回None；
 # re.search匹配整个字符串，直到找到一个匹配。
@@ -272,6 +307,6 @@ pass  # ----------贪心匹配----------2019-7-29 17:51:5
 #
 
 
-
 if __name__ == '__main__':
     pass
+
