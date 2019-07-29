@@ -159,5 +159,5 @@ with tf.Session() as sess:
 
     # 模型结果测试
     print("x=0.2, z=", sess.run(z, feed_dict={X: 0.2}))
-r
+
 
