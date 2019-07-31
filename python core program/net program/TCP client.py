@@ -4,11 +4,11 @@ import socket
 import sys
 
 # 获取主机名
-# host = socket.gethostname()
-host = '192.168.100.191'
+host = socket.gethostname()
+# host = '192.168.100.191'
 # 设置端口号
 port = 9999
-
+print(host)
 # 创建socket对象
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # 连接服务， 指定主机和端口

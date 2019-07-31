@@ -12,6 +12,7 @@ serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = socket.gethostname()
 # host = '192.168.1.1'
 port = 9999
+print(host)
 
 # 绑定端口号
 serversocket.bind((host, port))

@@ -117,7 +117,7 @@ pass  # ----------异常处理---------------2019-7-19 9:32:3
 #         print('warning: argument must be a number or numeric string')
 #         retval = None
 #     return retval
-pass  # ----------多线程---------------2019-7-19 13:51:28
+pass  # ----------多线程 threading---------------2019-7-19 13:51:28
 # #Thread对象函数 描述
 # # start()  开始线程的执行
 # # run()  定义线程的功能的函数（一般会被子类重写）
@@ -161,6 +161,82 @@ pass  # ----------多线程---------------2019-7-19 13:51:28
 #     print_time('all thread done')
 # except ValueError:
 #     print("Error: 无法启动线程")
+pass  # ----------多线程 queue---------------2019-7-31 16:45:34
+#
+# import queue
+# import threading
+# import time
+# import datetime
+#
+# exitFlag = 0
+#
+#
+# class MyThread(threading.Thread):
+#     def __init__(self, threadID, name, q):
+#         threading.Thread.__init__(self)
+#         self.threadID = threadID
+#         self.name = name
+#         self.q = q
+#
+#     def run(self):
+#         print("开启线程：" + self.name)
+#         process_data(self.name, self.q)
+#         print("退出线程：" + self.name)
+#
+#
+# def process_data(threadName, q):
+#     while not exitFlag:
+#         # 如果不加进程锁，各个进程之前的print会竞争输出
+#         print(threadName,'begin', datetime.datetime.now())
+#
+#         queueLock.acquire()
+#         if not workQueue.empty():  # 如果队列为空，返回 True
+#             data = q.get()
+#             print("%s processing %s " % (threadName, data))
+#             queueLock.release()
+#         else:
+#             queueLock.release()
+#         time.sleep(1)
+#         queueLock.acquire()
+#         print(threadName, 'end', datetime.datetime.now())
+#         queueLock.release()
+#
+#
+# threadList = ["Thread-1", "Thread-2", "Thread-3"]
+# nameList = ["One", "Two", "Three", "Four", "Five"]
+# queueLock = threading.Lock()
+# workQueue = queue.Queue(10)
+# threads = []
+# threadID = 1
+#
+# # 创建新线程
+# for tName in threadList:
+#     thread = MyThread(threadID, tName, workQueue)
+#     thread.start()
+#     time.sleep(0.001)
+#     print("main 1", datetime.datetime.now())
+#     threads.append(thread)
+#     threadID += 1
+#
+#
+# # 填充队列
+# queueLock.acquire()
+# for word in nameList:
+#     workQueue.put(word)
+# print("main 2", datetime.datetime.now())
+# queueLock.release()
+#
+# # 等待队列清空
+# while not workQueue.empty():
+#     pass
+# print("main 3", datetime.datetime.now())
+# # 通知线程是时候退出
+# exitFlag = 1
+#
+# # 等待所有线程完成
+# for t in threads:
+#     t.join()
+# print("退出主线程")
 pass  # ----------函数式编程 装饰器---------------2019-7-22 16:4:46
 #
 #
@@ -307,10 +383,6 @@ pass  # ----------贪心匹配----------2019-7-29 17:51:5
 #
 pass  # ----------网络编程----------2019-7-30 10:11:25
 # 套接字有两种，分别是基于文件型的和基于网络型的。
-
-
-
-
 
 if __name__ == '__main__':
     pass
