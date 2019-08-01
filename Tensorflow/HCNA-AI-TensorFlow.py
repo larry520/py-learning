@@ -71,105 +71,105 @@ pass  # -------------TensorFlow tf.Variable 变量的定义-------------------
 # print("var5:", var5.name)
 # print("var6:", var51.name)
 pass  # # -----------TensorBoard 可视化----------------------------------
-plotdata = {"batchsize": [], "loss": []}
-
-
-def moving_average(a, w=10):
-    if len(a) < w:
-        return a[:]
-    return [val if idx < w else sum(a[(idx - w): idx])/w for idx, val in enumerate(a)]
-
-
-# 生成模拟数据
-train_X = np.linspace(-1, 1, 100)
-train_Y = 2*train_X + np.random.randn(*train_X.shape)*0.3  # y=2x，但是加入了噪声
-# 重置计算图
-plt.plot(train_X, train_Y, 'ro', label='Original data')
-plt.legend()  # 增加图例,将label内容显示到图中
-plt.show()
-
-tf.reset_default_graph()
-
-# 创建模型
-X = tf.placeholder("float")
-Y = tf.placeholder("float")
-# 模型参数
-W = tf.Variable(tf.random_normal([1]), name="weight")
-b = tf.Variable(tf.zeros([1]), name="bias")
-
-# 前向结构
-z = tf.multiply(X, W)+b
-tf.summary.histogram('z', z)  # 将预测值以直方图显示
-
-# 反向优化
-cost = tf.reduce_mean(tf.square(Y-z))
-tf.summary.scalar('loss_function', cost)
-learning_rate = 0.01
-# Gradient descent  梯度下降
-optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
-
-# 初始化变量
-init = tf.global_variables_initializer()
-
-# 参数设置
-training_epochs = 20
-display_step = 2
-
-# 启动Session
-with tf.Session() as sess:
-    sess.run(init)
-    # 合并所有summary
-    merged_summary_op = tf.summary.merge_all()
-    # 创建 summary_writer, 用于写文件
-    summary_writer = tf.summary.FileWriter('log/mnist_with_summaries', sess.graph)
-
-    # 向模型中写入数据
-    for epoch in range(training_epochs):
-        for(x, y) in zip(train_X, train_Y):
-            sess.run(optimizer, feed_dict={X: x, Y: y})
-
-            # 生成summary
-            summart_str = sess.run(merged_summary_op, feed_dict={X: x, Y: y})
-            summary_writer.add_summary(summart_str, epoch)  # 将summary写入文件
-        # 显示训练中的详细信息
-        if epoch % display_step ==0:
-            loss = sess.run(cost, feed_dict={X: train_X, Y: train_Y})
-            print("Epoch:", epoch+1, "cost=", loss, "W=", sess.run(W), "b=", sess.run(b))
-            if not(loss ==  "NA"):
-                plotdata["batchsize"].append(epoch)
-                plotdata["loss"].append(loss)
-    print("Finished!")
-    print("cost=", sess.run(cost, feed_dict={X: train_X, Y: train_Y}),
-          "W=", sess.run(W), "b=", sess.run(b))
-    print("cost=", cost.eval({X: train_X, Y: train_Y}))
-
-    # 结果可视化
-    plt.plot(train_X, train_Y, 'ro', label="Original data")
-    plt.plot(train_X, sess.run(W)*train_X + sess.run(b), label="Fitted line")
-    plt.legend()
-    plt.show()
-
-    plotdata["avgloss"] = moving_average(plotdata["loss"])
-    plt.figure(1)
-    plt.subplot(211)
-    plt.plot(plotdata["batchsize"], plotdata["avgloss"], 'b--')
-    plt.xlabel('Minibatch number')
-    plt.ylabel('Loss')
-    plt.title('Minibatch run vs. Training loss')
-    plt.show()
-
-    # 模型结果测试
-    print("x=0.2, z=", sess.run(z, feed_dict={X: 0.2}))
+# plotdata = {"batchsize": [], "loss": []}
+#
+#
+# def moving_average(a, w=10):
+#     if len(a) < w:
+#         return a[:]
+#     return [val if idx < w else sum(a[(idx - w): idx])/w for idx, val in enumerate(a)]
+#
+#
+# # 生成模拟数据
+# train_X = np.linspace(-1, 1, 100)
+# train_Y = 2*train_X + np.random.randn(*train_X.shape)*0.3  # y=2x，但是加入了噪声
+# # 重置计算图
+# plt.plot(train_X, train_Y, 'ro', label='Original data')
+# plt.legend()  # 增加图例,将label内容显示到图中
+# plt.show()
+#
+# tf.reset_default_graph()
+#
+# # 创建模型
+# X = tf.placeholder("float")
+# Y = tf.placeholder("float")
+# # 模型参数
+# W = tf.Variable(tf.random_normal([1]), name="weight")
+# b = tf.Variable(tf.zeros([1]), name="bias")
+#
+# # 前向结构
+# z = tf.multiply(X, W)+b
+# tf.summary.histogram('z', z)  # 将预测值以直方图显示
+#
+# # 反向优化
+# cost = tf.reduce_mean(tf.square(Y-z))
+# tf.summary.scalar('loss_function', cost)
+# learning_rate = 0.01
+# # Gradient descent  梯度下降
+# optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
+#
+# # 初始化变量
+# init = tf.global_variables_initializer()
+#
+# # 参数设置
+# training_epochs = 20
+# display_step = 2
+#
+# # 启动Session
+# with tf.Session() as sess:
+#     sess.run(init)
+#     # 合并所有summary
+#     merged_summary_op = tf.summary.merge_all()
+#     # 创建 summary_writer, 用于写文件
+#     summary_writer = tf.summary.FileWriter('log/mnist_with_summaries', sess.graph)
+#
+#     # 向模型中写入数据
+#     for epoch in range(training_epochs):
+#         for(x, y) in zip(train_X, train_Y):
+#             sess.run(optimizer, feed_dict={X: x, Y: y})
+#
+#             # 生成summary
+#             summart_str = sess.run(merged_summary_op, feed_dict={X: x, Y: y})
+#             summary_writer.add_summary(summart_str, epoch)  # 将summary写入文件
+#         # 显示训练中的详细信息
+#         if epoch % display_step ==0:
+#             loss = sess.run(cost, feed_dict={X: train_X, Y: train_Y})
+#             print("Epoch:", epoch+1, "cost=", loss, "W=", sess.run(W), "b=", sess.run(b))
+#             if not(loss ==  "NA"):
+#                 plotdata["batchsize"].append(epoch)
+#                 plotdata["loss"].append(loss)
+#     print("Finished!")
+#     print("cost=", sess.run(cost, feed_dict={X: train_X, Y: train_Y}),
+#           "W=", sess.run(W), "b=", sess.run(b))
+#     print("cost=", cost.eval({X: train_X, Y: train_Y}))
+#
+#     # 结果可视化
+#     plt.plot(train_X, train_Y, 'ro', label="Original data")
+#     plt.plot(train_X, sess.run(W)*train_X + sess.run(b), label="Fitted line")
+#     plt.legend()
+#     plt.show()
+#
+#     plotdata["avgloss"] = moving_average(plotdata["loss"])
+#     plt.figure(1)
+#     plt.subplot(211)
+#     plt.plot(plotdata["batchsize"], plotdata["avgloss"], 'b--')
+#     plt.xlabel('Minibatch number')
+#     plt.ylabel('Loss')
+#     plt.title('Minibatch run vs. Training loss')
+#     plt.show()
+#
+#     # 模型结果测试
+#     print("x=0.2, z=", sess.run(z, feed_dict={X: 0.2}))
 pass  # -------------数据读取与处理----------------2019-7-29 22:11:15
-# # filename_queue = tf.train.string_input_producer(["tf_read.csv"])  # 读取已有数据
-# filename_queue = tf.data.Dataset.from_tensor_slices("tf_read.csv")
-# reader = tf.TextLineReader()
+# filename_queue = tf.train.string_input_producer(["tf_read.csv"])  # 读取已有数据
+# # filename_queue = tf.data.Dataset.from_tensor_slices("tf_read.csv")
+# reader = tf.data.TextLineDataset("tf_read.csv")
 # # 获取队列值
 # key, value = reader.read(filename_queue)
 # # key 返回的是读取文件和行数信息
 # # value 是按行读取到的原始字符串，送到下面的 decoder 去解析
 # # key 是文件信息和当前读取的行数，value 是原始字符串。
-# record_defaults = [[1.], [1.], [1.], [1.]]  #  这里的数据类型决定了读取的数据类型，
+# record_defaults = [[1.], [1.], [1.], [1.]]   # 这里的数据类型决定了读取的数据类型，
 # # 而且必须是 list 形式
 # # 解析出的每一个属性都是 rank 为 0 的标量
 # col1, col2, col3, col4 = tf.decode_csv(value, record_defaults=record_defaults)
