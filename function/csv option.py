@@ -8,11 +8,13 @@ import csv
 #     writer = csv.writer(csvfile)
 #     writer.writerow(["index", "a_name", "b_name"])
 #     writer.writerows([[0, 'a1', 'b1'], [1, 'a2', 'b2'], [2, 'a3', 'b3']])
+#
+# # 读
+# with open("test.csv", "r") as csvfile:
+#     readr = csv.reader(csvfile)
+#     for line in readr:
+#         print(line)
 
-# 读
-with open("test.csv", "r") as csvfile:
-    readr = csv.reader(csvfile)
-    for line in readr:
-        print(line)
+import datetime
 
-
+print(datetime.datetime.now())
