@@ -25,11 +25,12 @@
 不会有太多功能性代码，而是根据执行的模式调用不同的函数。
 """
 
-import numpy as np
 import copy
-from functools import wraps
-import re
 import os
+import re
+from functools import wraps
+
+import numpy as np
 
 ls = os.linesep
 
@@ -239,7 +240,7 @@ pass  # ----------多线程 queue---------------2019-7-31 16:45:34
 # print("退出主线程")
 pass  # ----------函数式编程 装饰器---------------2019-7-22 16:4:46
 #
-#
+# #
 # def a_new_decorator(a_func):
 #     #  以下文本内容可通过 foo.__doc__ 引用
 #     """
@@ -264,42 +265,42 @@ pass  # ----------函数式编程 装饰器---------------2019-7-22 16:4:46
 # a_function_requiring_decoration()
 pass  # ---------装饰器的典型应用-----Logging 日志记录  2019-7-22 16:58:50
 #
-#
-# def logit(logfile='out.log'):
-#     def logging_decorator(func):
-#         @wraps(func)
-#         def wrapped_function(*args, **kwargs):
-#             log_string = func.__name__ + " was called"
-#             print(log_string)
-#             # 打开logfile，并写入内容
-#             with open(logfile, 'a') as opened_file:
-#                 # 现在将日志打到指定的logfile
-#                 opened_file.write(log_string + '\n')
-#             return func(*args, **kwargs)
-#
-#         return wrapped_function
-#
-#     return logging_decorator
-#
-#
-# @logit()
-# def myfunc1():
-#     pass
-#
-#
-# myfunc1()
-# # Output: myfunc1 was called
-# # 现在一个叫做 out.log 的文件出现了，里面的内容就是上面的字符串
-#
-#
-# @logit(logfile='func2.log')
-# def myfunc2():
-#     pass
-#
-#
-# myfunc2()
-# # Output: myfunc2 was called
-# # 现在一个叫做 func2.log 的文件出现了，里面的内容就是上面的字符串
+
+def logit(logfile='out.log'):
+    def logging_decorator(func):
+        @wraps(func)
+        def wrapped_function(*args, **kwargs):
+            log_string = func.__name__ + " was called"
+            print(log_string)
+            # 打开logfile，并写入内容
+            with open(logfile, 'a') as opened_file:
+                # 现在将日志打到指定的logfile
+                opened_file.write(log_string + '\n')
+            return func(*args, **kwargs)
+
+        return wrapped_function
+
+    return logging_decorator
+
+
+@logit()
+def myfunc1():
+    pass
+
+
+myfunc1()
+# Output: myfunc1 was called
+# 现在一个叫做 out.log 的文件出现了，里面的内容就是上面的字符串
+
+
+@logit(logfile='func2.log')
+def myfunc2():
+    pass
+
+
+myfunc2()
+# Output: myfunc2 was called
+# 现在一个叫做 func2.log 的文件出现了，里面的内容就是上面的字符串
 pass  # ----------装饰器的典型应用----授权  2019-7-22 16:58:50
 # """对某些应用执行前做权限确认"""
 # def requires_auth(f):
@@ -386,4 +387,3 @@ pass  # ----------网络编程----------2019-7-30 10:11:25
 
 if __name__ == '__main__':
     pass
-
