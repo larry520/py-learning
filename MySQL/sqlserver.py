@@ -85,7 +85,7 @@ import hashlib
 import time
 
 
-class MySQL(object):
+class MySQL_sgmode(object):
     """
     MySQL 单例模式 增删查改
     """
@@ -122,7 +122,6 @@ class MySQL(object):
             # self.__cursor = self.__db.cursor()
             # 返回结果包含字段
             self.__cursor = self.__db.cursor(cursor=pymysql.cursors.DictCursor)
-            # self.__cursor = self.__db.cursor()
         return self._instance
 
     # 返回执行execute()方法后影响的行数
@@ -159,11 +158,11 @@ class MySQL(object):
             self.__db.commit()
             # 获取自增id
             res = self.__cursor.lastrowid
-        except:
+        except Exception as e:
             # 发生错误时回滚
             self.__db.rollback()
             # 打印错误
-            # print(e)
+            print(e)
         return res
 
     def insertMany(self, **kwargs):
@@ -330,7 +329,7 @@ def timeFormat(timestamp):
 
 
 if __name__ == "__main__":
-    dbObject = MySQL(host='localhost', port=3306, user='root', password='123!@#qqw',db='yiibaidb')
+    dbObject = MySQL_sgmode(host='localhost', port=3306, user='root', password='123!@#qqw',db='yiibaidb')
 
     print('创建数据库：cygdmdb')
     sql = "CREATE DATABASE IF NOT EXISTS cygdmdb"
