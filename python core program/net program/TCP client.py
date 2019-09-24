@@ -5,7 +5,7 @@ import sys
 
 # 获取主机名
 host = socket.gethostname()
-# host = '192.168.100.191'
+host = '127.0.0.1'
 # 设置端口号
 port = 9999
 print(host)

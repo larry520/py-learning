@@ -7,12 +7,12 @@ import time
 
 # 创建 socket 对象
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+# serversocket = socket.socket()
 # 获取主机名
-host = socket.gethostname()
-# host = '192.168.1.1'
+# host = socket.gethostname()
+host = '127.0.0.1'
 port = 9999
-print(host)
+print('host:',host)
 
 # 绑定端口号
 serversocket.bind((host, port))
