@@ -57,3 +57,14 @@ import time,datetime
 a =3.1314526
 b = "%.3f" %float("%.5f" % a)
 print(b,type(b))
+
+bindFuncs = "[2,5,]"
+t1 = bindFuncs.replace(";", ",").replace('[', '["')
+t2 = t1.replace(',', '","')
+t3=t2.replace(',"]', ']')
+bindFuncList = eval(t3)
+print(t1,t2,t3)
+print(type(t1),type(t2),type(t3),bindFuncs)
+
+print( 3<4<
+          5)
