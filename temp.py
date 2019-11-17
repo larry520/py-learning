@@ -57,3 +57,5 @@ import time,datetime
 a =3.1314526
 b = "%.3f" %float("%.5f" % a)
 print(b,type(b))
+
+print(datetime.datetime.now())
