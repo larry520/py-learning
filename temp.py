@@ -67,5 +67,4 @@ bindFuncList = eval(t3)
 print(t1,t2,t3)
 print(type(t1),type(t2),type(t3),bindFuncs)
 
-print( 3<4<
-          5)
+print( 3<4<5)
