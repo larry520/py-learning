@@ -53,18 +53,48 @@ import time,datetime
 # t3 = t - t2
 # print(t, t2, t3)
 
+#
+# a =3.1314526
+# b = "%.3f" %float("%.5f" % a)
+# print(b,type(b))
+#
+# bindFuncs = "[2,5,]"
+# t1 = bindFuncs.replace(";", ",").replace('[', '["')
+# t2 = t1.replace(',', '","')
+# t3=t2.replace(',"]', ']')
+# bindFuncList = eval(t3)
+# print(t1,t2,t3)
+# print(type(t1),type(t2),type(t3),bindFuncs)
+#
+# print( 3<4<
+#           5)
 
-a =3.1314526
-b = "%.3f" %float("%.5f" % a)
-print(b,type(b))
+class Solution(object):
+    def validUtf8(self, data):
+        """
+        :type data: List[int]
+        :rtype: bool
+        """
+        masks = [0x0, 0x80, 0xE0, 0xF0, 0xF8]
+        bits = [0x0, 0x0, 0xC0, 0xE0, 0xF0]
+        while data:
+            for x in (4, 3, 2, 1, 0):
+                t = data[0]&masks[x]
+                if data[0] & masks[x] == bits[x]:
+                    break
+            if x == 0 or len(data) < x:
+                return False
+            for y in range(1, x):
+                if data[y] & 0xC0 != 0x80:
+                    return False
+            data = data[x:]
+        return True
 
-bindFuncs = "[2,5,]"
-t1 = bindFuncs.replace(";", ",").replace('[', '["')
-t2 = t1.replace(',', '","')
-t3=t2.replace(',"]', ']')
-bindFuncList = eval(t3)
-print(t1,t2,t3)
-print(type(t1),type(t2),type(t3),bindFuncs)
+s = Solution()
+data = [197, 130, 1]
+s.validUtf8(data)
 
-print( 3<4<
-          5)
+
+
+
+

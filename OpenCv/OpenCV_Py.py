@@ -212,7 +212,7 @@ pass  # ---------给图像扩充边-----------
 # plt.subplot(236), plt.imshow(constant, 'gray'), plt.title('CONSTANT')
 # plt.xticks([]), plt.yticks([])
 # plt.show()
-
+#
 # mm = np.zeros(img1.shape，uint8)
 # cv2.namedWindow('mm')
 # cv2.imshow('mm', reflect)
@@ -222,7 +222,7 @@ pass  # ---------给图像扩充边-----------
 pass  # ---------图像加法/图像拼接---------------
 # np.hstack([img1, img2])
 # np.vstack([img1, img2])
-
+#
 # img1 = cv2.imread('th.jpg')
 # img2 = cv2.imread('dingdang.jpg')
 # img3 = img2 + img1
@@ -273,10 +273,12 @@ pass  # ---------按位运算, 掩模运算------
 # dst = cv2.add(img1_bg, img2_fg)
 # img1[rows1-rows2:rows1, 0:cols2] = dst
 #
+#
 # plt.subplot(231)
 # plt.title('mask')
 # plt.imshow(mask)
 # plt.subplot(232)
+# plt.title('img2')
 # plt.imshow(img2)
 # plt.subplot(233)
 # plt.title('img1_bg')
@@ -285,11 +287,18 @@ pass  # ---------按位运算, 掩模运算------
 # plt.title('img2_fg')
 # plt.imshow(img2_fg)
 # plt.subplot(235)
+# plt.title('img2gray')
 # plt.imshow(img2gray)
 # plt.subplot(236)
+# plt.title('img1')
 # plt.imshow(img1)
 # plt.show()
 # print(mask[1, 1], img2gray[1, 1])
+#
+# cv2.imshow('img2gray', img2gray)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+
 pass  # ---------颜色空间转换-----------
 # cv2.cvtColor(input_image， flag)
 # BGR to Gray  flag = cv2.COLOR_BGR2GRAY
@@ -1744,122 +1753,206 @@ pass  # -------背景减除 KNN--------- 2019-7-9 17:43:37
 #         break
 # camera.release()
 pass  # -------摄像机标定，畸变校正，反向投影误差---------2019-7-9 21:6:47
+#
+# # 阈值
+# criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+#
+# # 棋盘模板规格 注：w,h 分别为横向、纵向角点数目
+# w = 6  # cols
+# h = 9   # rows
+# # 设置检测物理坐标， like (0,0,0), (1,0,0), (2,0,0)..(8,5,0)
+# objp = np.zeros((w*h, 3), np.float32)
+# objp[:,:2] = np.mgrid[0:w, 0:h].T.reshape(-1,2)
+#
+# # 储存棋盘格角点的世界坐标和图像坐标对
+# objpoints = []  # 在世界坐标系中的三维点
+# imgpoints = []  # 在图像平面的二维点
+#
+# images = glob.glob('*chess_dist.jpg')  # 需要import glob  获取所有*chess.jpg文件名字 字符串形式
+#
+# for fname in images:
+#     img = cv2.imread(fname)
+#     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#
+#     # 寻找棋盘角点
+#     ret, corners = cv2.findChessboardCorners(gray,(w,h),None)
+#
+#     # 如果找到足够点对，将其存储起来
+#     if ret:
+#         objpoints.append(objp)   # 记录世界坐标
+#         # 寻找亚像素角点
+#         corners2 = cv2.cornerSubPix(gray, corners,(11,11),(-1,-1), criteria)
+#         imgpoints.append(corners2)  #  记录棋盘图像坐标
+#
+#         # 绘图显示棋盘坐标
+#         img = cv2.drawChessboardCorners(img, (w, h), corners2, ret)
+#         cv2.namedWindow('img', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
+#         cv2.imshow('img', img)
+#         cv2.waitKey(0)
+#
+#     # 标定 返回摄像机矩阵mtx，畸变系数dist，旋转 rvecs 和变换向量tvecs等。
+#     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+#
+#     # 去畸变
+#     img2 = cv2.imread('chess_dist.JPG')
+#     h,  w = img2.shape[:2]
+#
+#     # alpha=1 返回所有像素.
+#     newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h)) # 自由比例参数
+#
+#     #---------使用cv2.undistort()　去畸变
+#     dst = cv2.undistort(img2, mtx, dist, None, newcameramtx)
+#
+#     # # # ---------使用cv2.remapping()　去畸变
+#     # # # 先找到从畸变图像到非畸变图像的映射方程。再使用重映射方程
+#     # mapx, mapy = cv2.initUndistortRectifyMap(mtx, dist, None, newcameramtx, (w, h), 5)
+#     # dst = cv2.remap(img2, mapx, mapy, cv2.INTER_LINEAR)
+#
+#     # 根据前面ROI区域裁剪图片
+#     x,y,w,h = roi
+#     dst = dst[y:y+h, x:x+w]
+#     cv2.imshow('calibresult.png',dst)
+#     cv2.imwrite('chess001.jpg', dst)
+#     cv2.waitKey(0)
+#
+#     # 反投影误差
+#     total_error = 0
+#     for i in range(len(objpoints)):
+#         # cv2.projectPoints 将对象点转换到图像点
+#         imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
+#         # 计算图像与角点检测算法的绝对差
+#         error = cv2.norm(imgpoints[i],imgpoints2, cv2.NORM_L2)/len(imgpoints2)
+#         total_error += error
+#     print("total error: ", total_error/len(objpoints))  #　计算所有标定图像的误差平均值
+# pass  # -------姿势估计--------- 2019-7-10 20:39:6
+#
+# def draw(img, corners, imgpts):
+#     """
+#     绘制3D 坐标轴
+#     :param img:  input src
+#     :param corners: reference point XYZ轴划线起点
+#     :param imgpts:  XYZ轴划线端点
+#     :return: 返回画好线的图
+#     """
+#     corner = tuple(corners[24].ravel())
+#     img = cv2.line(img, corner, tuple(imgpts[0].ravel()), (255, 0,0),5)
+#     img = cv2.line(img, corner, tuple(imgpts[1].ravel()), (0, 255, 0), 5)
+#     img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0, 0, 255), 5)
+#     return img
+#
+#
+# criteria = (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+# w = 6  # cols 列
+# h = 9   # rows
+# # 设置检测物理坐标， like (0,0,0), (1,0,0), (2,0,0)..(8,5,0)
+# objp = np.zeros((w*h, 3), np.float32)
+# objp[:,:2] = np.mgrid[0:w, 0:h].T.reshape(-1,2)
+#
+# # 3D 空间中的坐标轴点是为了绘制坐标轴  以选择的轮廓点为起点，下图3个点为三个轴端点 单位为黑白块的长和宽
+# axis = np.float32([[3,4,0],[0,7,0],[0,4,-3]]).reshape(-1,3)  # 横向为x坐标
+#
+# for fname in glob.glob('chess_dist.jpg'):
+#     img = cv2.imread(fname)
+#     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#     ret, corners = cv2.findChessboardCorners(gray,(w,h),None)
+#     # 如果找到了就用亚像素方法找到更精确的角点
+#     if ret:
+#         corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
+#         #　计算旋转和变换
+#         ret, rvecs, tvecs, _ = cv2.solvePnPRansac(objp,corners2,mtx, dist)
+#
+#         # 将3D空间点坐标映射到图像坐标中
+#         imgpts, jac = cv2.projectPoints(axis,rvecs,tvecs,mtx,dist)
+#
+#         # 绘制坐标轴
+#         img = draw(img, corners2, imgpts)
+#         cv2.imshow('img', img)
+#         k = cv2.waitKey(0) &0xff
+#         if k == 's':
+#             cv2.imwrite(fname[:6]+'.png',img)
+#
+# cv2.destroyAllWindows()
+pass
 
-# 阈值
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+pass  # ---------模板的创建与检测-------  2019-7-4 10:9:36
+# 根据一张原图找出ROI并创建模板，利用创建的模板对其他图片进行匹配
+#
+def axis_pick(event, x, y, flags, param):
+    """获取鼠标点击坐标，确定ROI区域"""
+    global x1, y1, x2, y2, axis_Nm, img2
+    if event == cv2.EVENT_LBUTTONDBLCLK:
+        x1, y1 = x,y
+        axis_Nm = 1
+        cv2.circle(img2, (x,y),2, (255,0,0), -1)
+    elif event == cv2.EVENT_RBUTTONDBLCLK and axis_Nm == 1 :
+        x2, y2 = x, y
+        axis_Nm = 2
+        cv2.circle(img2, (x,y),2, (0,0,255), -1)
 
-# 棋盘模板规格 注：w,h 分别为横向、纵向角点数目
-w = 6  # cols
-h = 9   # rows
-# 设置检测物理坐标， like (0,0,0), (1,0,0), (2,0,0)..(8,5,0)
-objp = np.zeros((w*h, 3), np.float32)
-objp[:,:2] = np.mgrid[0:w, 0:h].T.reshape(-1,2)
-
-# 储存棋盘格角点的世界坐标和图像坐标对
-objpoints = []  # 在世界坐标系中的三维点
-imgpoints = []  # 在图像平面的二维点
-
-images = glob.glob('*chess_dist.jpg')  # 需要import glob  获取所有*chess.jpg文件名字 字符串形式
-
-for fname in images:
-    img = cv2.imread(fname)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # 寻找棋盘角点
-    ret, corners = cv2.findChessboardCorners(gray,(w,h),None)
-
-    # 如果找到足够点对，将其存储起来
-    if ret:
-        objpoints.append(objp)   # 记录世界坐标
-        # 寻找亚像素角点
-        corners2 = cv2.cornerSubPix(gray, corners,(11,11),(-1,-1), criteria)
-        imgpoints.append(corners2)  #  记录棋盘图像坐标
-
-        # 绘图显示棋盘坐标
-        img = cv2.drawChessboardCorners(img, (w, h), corners2, ret)
-        cv2.namedWindow('img', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
-        cv2.imshow('img', img)
-        cv2.waitKey(0)
-
-    # 标定 返回摄像机矩阵mtx，畸变系数dist，旋转 rvecs 和变换向量tvecs等。
-    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
-
-    # 去畸变
-    img2 = cv2.imread('chess_dist.JPG')
-    h,  w = img2.shape[:2]
-
-    # alpha=1 返回所有像素.
-    newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h)) # 自由比例参数
-
-    #---------使用cv2.undistort()　去畸变
-    dst = cv2.undistort(img2, mtx, dist, None, newcameramtx)
-
-    # # # ---------使用cv2.remapping()　去畸变
-    # # # 先找到从畸变图像到非畸变图像的映射方程。再使用重映射方程
-    # mapx, mapy = cv2.initUndistortRectifyMap(mtx, dist, None, newcameramtx, (w, h), 5)
-    # dst = cv2.remap(img2, mapx, mapy, cv2.INTER_LINEAR)
-
-    # 根据前面ROI区域裁剪图片
-    x,y,w,h = roi
-    dst = dst[y:y+h, x:x+w]
-    cv2.imshow('calibresult.png',dst)
-    cv2.imwrite('chess001.jpg', dst)
-    cv2.waitKey(0)
-
-    # 反投影误差
-    total_error = 0
-    for i in range(len(objpoints)):
-        # cv2.projectPoints 将对象点转换到图像点
-        imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
-        # 计算图像与角点检测算法的绝对差
-        error = cv2.norm(imgpoints[i],imgpoints2, cv2.NORM_L2)/len(imgpoints2)
-        total_error += error
-    print("total error: ", total_error/len(objpoints))  #　计算所有标定图像的误差平均值
-pass  # -------姿势估计--------- 2019-7-10 20:39:6
-
-def draw(img, corners, imgpts):
+# 找一幅图并选择创建模板
+def model_creat(img_g, type):
     """
-    绘制3D 坐标轴
-    :param img:  input src
-    :param corners: reference point XYZ轴划线起点
-    :param imgpts:  XYZ轴划线端点
-    :return: 返回画好线的图
+    创建模板
+    :param img_g: input src
+    :param type:  model type : circle, rectangle
+    :return: model img
     """
-    corner = tuple(corners[24].ravel())
-    img = cv2.line(img, corner, tuple(imgpts[0].ravel()), (255, 0,0),5)
-    img = cv2.line(img, corner, tuple(imgpts[1].ravel()), (0, 255, 0), 5)
-    img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0, 0, 255), 5)
-    return img
+    global img2 , radius
+    cv2.namedWindow('model creat', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
+    cv2.waitKey(10)
+    cv2.setMouseCallback('model creat', axis_pick)
+    while 1:
+        cv2.imshow('model creat', img2)
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+    if type == 'circle':   #　circle 点水平直径
+        radius = int(abs((x2-x1)/2))
+        temp = img_g[(y1-radius):(y2+radius), x1:x2]
+    elif type == 'rectangle':  #　rectangle 点对角
+        temp = img_g[y1:y2, x1:x2]
 
+    return temp
 
-criteria = (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-w = 6  # cols 列
-h = 9   # rows
-# 设置检测物理坐标， like (0,0,0), (1,0,0), (2,0,0)..(8,5,0)
-objp = np.zeros((w*h, 3), np.float32)
-objp[:,:2] = np.mgrid[0:w, 0:h].T.reshape(-1,2)
+# 模板类型
+TYPE = 'rectangle'
+img = cv2.imread('aoi1.jpg')
+# img = cv2.imread('DetectCirclesExample_01.png')
 
-# 3D 空间中的坐标轴点是为了绘制坐标轴  以选择的轮廓点为起点，下图3个点为三个轴端点 单位为黑白块的长和宽
-axis = np.float32([[3,4,0],[0,7,0],[0,4,-3]]).reshape(-1,3)  # 横向为x坐标
+img2 = img.copy()
+img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# 调用模板创建函数生成模板
+template = model_creat(img_g, TYPE)
+w, h = template.shape[::-1]
 
-for fname in glob.glob('chess_dist.jpg'):
-    img = cv2.imread(fname)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret, corners = cv2.findChessboardCorners(gray,(w,h),None)
-    # 如果找到了就用亚像素方法找到更精确的角点
-    if ret:
-        corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
-        #　计算旋转和变换
-        ret, rvecs, tvecs, _ = cv2.solvePnPRansac(objp,corners2,mtx, dist)
+cv2.imshow('template',template)
+# 使窗口可以按比例拉伸
+cv2.namedWindow('result', cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
+for i in range(2,20):
+    img_target = cv2.imread(r'aoi'+str(i)+'.jpg')
+    # img_target = cv2.imread('DetectCirclesExample_01.png')
+    res = cv2.matchTemplate(img_target[:,:,0],template,cv2.TM_CCOEFF_NORMED)
 
-        # 将3D空间点坐标映射到图像坐标中
-        imgpts, jac = cv2.projectPoints(axis,rvecs,tvecs,mtx,dist)
+    # # 单对象匹配，只需得分最高的匹配项
+    # min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+    # if TYPE == 'circle':
+    #     cv2.circle(img_target, (max_loc[0] + radius, max_loc[1] + radius), radius, (0, 255, 0), 3)
+    # elif TYPE == 'rectangle':
+    #     cv2.rectangle(img_target, max_loc, (max_loc[0] + w, max_loc[1] + h), (0, 0, 255), 3)
+    # #
 
-        # 绘制坐标轴
-        img = draw(img, corners2, imgpts)
-        cv2.imshow('img', img)
-        k = cv2.waitKey(0) &0xff
-        if k == 's':
-            cv2.imwrite(fname[:6]+'.png',img)
+    # 多对象匹配
+    threshold = 0.9
+    # Return elements, either from x or y, depending on condition.
+    # If only condition is given, return condition.nonzero().
+    loc = np.where( res >= threshold)
+    for pt in zip(*loc[::-1]):
+        if TYPE == 'circle':
+            cv2.circle(img_target, (pt[0]+radius, pt[1]+radius), radius, (0, 255, 0), 2)
+        elif TYPE == 'rectangle':
+            cv2.rectangle(img_target, pt, (pt[0] + w, pt[1] + h), (0,255,0), 2)
 
-cv2.destroyAllWindows()
+    cv2.imshow('result', img_target)
+    k = cv2.waitKey(0)
+    if k == 27:
+        break
