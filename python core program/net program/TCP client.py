@@ -7,7 +7,7 @@ import sys
 host = socket.gethostname()
 host = '127.0.0.1'
 # 设置端口号
-port = 9999
+port = 8282
 print(host)
 # 创建socket对象
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
